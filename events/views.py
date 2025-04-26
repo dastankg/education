@@ -405,72 +405,72 @@ class EventLinkTrackView(APIView):
             )
 
 
-    @extend_schema(
-        tags=["Events"],
-        summary="Получение детальной информации о Event",
-        description="Этот эндпоинт возвращает подробную информацию о конкретном Event по его ID. Передайте `user_id` как query параметр, чтобы зафиксировать просмотр.",
-        parameters=[
-            OpenApiParameter(
-                name="user_id",
-                description="UUID пользователя для фиксации просмотра и определения is_like/is_viewed",
-                required=False,
-                type=int,
-                location=OpenApiParameter.QUERY,
-            ),
-        ],
-        responses={200: EventSerializer, 404: {"description": "Event не найден"}},
-        examples=[
-            OpenApiExample(
-                "Детальная информация о Event",
-                value={
-                    "event_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                    "title": "Summer Internship Program",
-                    "description": "3-month internship opportunity for students",
-                    "image": "/media/images/3fa85f64-5717-4562-b3fc-2c963f66afa6.jpg",
-                    "deadline": "2025-06-30",
-                    "types_event": "internship",
-                    "type_url": "https://example.com/internships",
-                    "company": "apple",
-                    "created_at": "2025-03-15T10:30:00Z",
-                    "updated_at": "2025-03-15T10:30:00Z",
-                },
-            )
-        ],
-    )
-    class EventDetailAPIView(generics.RetrieveAPIView):
-        permission_classes = [IsAuthenticated]
-        queryset = Event.objects.all()
-        serializer_class = EventSerializer
-        lookup_field = "event_id"
+@extend_schema(
+    tags=["Events"],
+    summary="Получение детальной информации о Event",
+    description="Этот эндпоинт возвращает подробную информацию о конкретном Event по его ID. Передайте `user_id` как query параметр, чтобы зафиксировать просмотр.",
+    parameters=[
+        OpenApiParameter(
+            name="user_id",
+            description="UUID пользователя для фиксации просмотра и определения is_like/is_viewed",
+            required=False,
+            type=int,
+            location=OpenApiParameter.QUERY,
+        ),
+    ],
+    responses={200: EventSerializer, 404: {"description": "Event не найден"}},
+    examples=[
+        OpenApiExample(
+            "Детальная информация о Event",
+            value={
+                "event_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "title": "Summer Internship Program",
+                "description": "3-month internship opportunity for students",
+                "image": "/media/images/3fa85f64-5717-4562-b3fc-2c963f66afa6.jpg",
+                "deadline": "2025-06-30",
+                "types_event": "internship",
+                "type_url": "https://example.com/internships",
+                "company": "apple",
+                "created_at": "2025-03-15T10:30:00Z",
+                "updated_at": "2025-03-15T10:30:00Z",
+            },
+        )
+    ],
+)
+class EventDetailAPIView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    lookup_field = "event_id"
 
-        def get(self, request, *args, **kwargs):
-            try:
-                user_id = request.query_params.get("user_id")
-                event = self.get_object()
-                event.click += 1
-                event.save()
-                if user_id:
+    def get(self, request, *args, **kwargs):
+        try:
+            user_id = request.query_params.get("user_id")
+            event = self.get_object()
+            event.click += 1
+            event.save()
+            if user_id:
+                try:
+                    user = User.objects.get(id=user_id)
+
                     try:
-                        user = User.objects.get(id=user_id)
+                        event_view = EventView.objects.get(user=user, event=event)
+                        event_view.is_viewed = True
 
-                        try:
-                            event_view = EventView.objects.get(user=user, event=event)
-                            event_view.is_viewed = True
+                    except EventView.DoesNotExist:
+                        EventView.objects.create(user=user, event=event, is_viewed=True)
 
-                        except EventView.DoesNotExist:
-                            EventView.objects.create(user=user, event=event, is_viewed=True)
+                except User.DoesNotExist:
+                    pass
 
-                    except User.DoesNotExist:
-                        pass
-
-                serializer = self.get_serializer(
-                    event, context={"request": request, "user_id": user_id}
-                )
-                return Response(serializer.data)
-            except Exception as e:
-                return Response(
-                    {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+            serializer = self.get_serializer(
+                event, context={"request": request, "user_id": user_id}
+            )
+            return Response(serializer.data)
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 @extend_schema(
