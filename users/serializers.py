@@ -112,6 +112,7 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             "email",
             "full_name",
             "age",
+            "type",
             "user_type",
             "device_token",
         )
