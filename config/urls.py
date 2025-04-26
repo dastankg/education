@@ -51,7 +51,7 @@ urlpatterns = [
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
         CustomConfirmEmailView.as_view(),
-        name="auth-account-confirm-email",
+        name="account_confirm_email",
     ),
     path(
         "auth/verification-success/",
