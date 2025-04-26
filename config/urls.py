@@ -39,14 +39,14 @@ urlpatterns = [
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
     path(
-        "api/v1/auth/password/reset/",
+        "api/v1/auth/reset-password-request/",
         PasswordResetRequestView.as_view(),
-        name="rest_password_reset",
+        name="reset_password_request",
     ),
     path(
-        "api/v1/auth/password/reset/confirm/",
+        "api/v1/auth/reset-password-confirm/",
         PasswordResetConfirmView.as_view(),
-        name="rest_password_reset_confirm",
+        name="reset_password_confirm",
     ),
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",

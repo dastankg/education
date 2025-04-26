@@ -114,5 +114,4 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             "age",
             "type",
             "user_type",
-            "device_token",
         )
