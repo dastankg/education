@@ -4,6 +4,7 @@ from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from allauth.account.views import ConfirmEmailView
 from django.shortcuts import render
 from django.views.generic import TemplateView
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
@@ -71,14 +72,14 @@ class VerificationSuccessView(TemplateView):
                 OpenApiExample(
                     "Успешный ответ",
                     value={"message": "Код для сброса пароля отправлен на ваш email."},
-                )
+                ),
             ],
         ),
         400: OpenApiResponse(
-            description="Ошибка запроса",
+            description="Email не найден",
             examples=[
                 OpenApiExample(
-                    "Email не найден",
+                    "Ошибка запроса",
                     value={"error": "Пользователь с указанным email не найден."},
                 ),
             ],
@@ -133,11 +134,11 @@ class PasswordResetRequestView(APIView):
                 OpenApiExample(
                     "Успешный ответ",
                     value={"message": "Пароль успешно изменен."},
-                )
+                ),
             ],
         ),
         400: OpenApiResponse(
-            description="Ошибка запроса",
+            description="Ошибка валидации или недействительный код",
             examples=[
                 OpenApiExample(
                     "Ошибка валидации",
@@ -205,6 +206,7 @@ class PasswordResetConfirmView(APIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["User"],
     summary="Обновление токена устройства",
     description="Этот эндпоинт позволяет обновить FCM токен устройства пользователя для получения push-уведомлений.",
@@ -218,21 +220,36 @@ class PasswordResetConfirmView(APIView):
         ),
     ],
     request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "device_token": {
-                    "type": "string",
-                    "description": "FCM токен устройства",
-                }
-            },
-            "required": ["device_token"],
-        }
+        "application/json": OpenApiTypes.OBJECT,
     },
     responses={
-        200: {"description": "Токен устройства успешно обновлен"},
-        400: {"description": "Неверные данные запроса"},
-        404: {"description": "Пользователь не найден"},
+        200: OpenApiResponse(
+            description="Токен устройства успешно обновлен",
+            examples=[
+                OpenApiExample(
+                    "Успешный ответ",
+                    value={"success": "Токен устройства успешно обновлен"},
+                ),
+            ],
+        ),
+        400: OpenApiResponse(
+            description="Неверные данные запроса",
+            examples=[
+                OpenApiExample(
+                    "Ошибка запроса",
+                    value={"error": "Необходимо указать device_token"},
+                ),
+            ],
+        ),
+        404: OpenApiResponse(
+            description="Пользователь не найден",
+            examples=[
+                OpenApiExample(
+                    "Ошибка поиска пользователя",
+                    value={"error": "Пользователь не найден"},
+                ),
+            ],
+        ),
     },
 )
 class UpdateDeviceTokenView(APIView):

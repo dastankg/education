@@ -25,57 +25,78 @@ from drf_spectacular.views import (
 from users.views import VerificationSuccessView, CustomConfirmEmailView
 
 urlpatterns = [
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
-    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    # API Documentation
+    path("schema/", SpectacularAPIView.as_view(), name="api-schema"),
+    path(
+        "docs/",
+        SpectacularSwaggerView.as_view(url_name="api-schema"),
+        name="swagger-ui",
+    ),
+    path("redoc/", SpectacularRedocView.as_view(url_name="api-schema"), name="redoc"),
+    # Admin Site
+    path("admin/", admin.site.urls),
+    # Authentication URLs
+    path("api/v1/auth/", include("dj_rest_auth.urls")),
+    path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
     path(
         "api/v1/auth/password/reset/",
         PasswordResetRequestView.as_view(),
-        name="rest_password_reset",
+        name="auth-password-reset",
     ),
     path(
         "api/v1/auth/password/reset/confirm/",
         PasswordResetConfirmView.as_view(),
-        name="rest_password_reset_confirm",
+        name="auth-password-reset-confirm",
     ),
-    path("admin/", admin.site.urls),
-    path("api/v1/auth/", include("dj_rest_auth.urls")),
-    path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
         CustomConfirmEmailView.as_view(),
-        name="account_confirm_email",
+        name="auth-account-confirm-email",
     ),
     path(
         "auth/verification-success/",
         VerificationSuccessView.as_view(),
-        name="verification_success",
+        name="auth-verification-success",
     ),
+    # Device Management
     path(
-        "update-device-token/",
+        "api/v1/devices/token/",
         UpdateDeviceTokenView.as_view(),
-        name="update-device-token",
+        name="devices-update-token",
     ),
+    # Favorites
     path(
-        "favorites/list/",
+        "api/v1/favorites/",
         ListFavoriteEventsAPIView.as_view(),
-        name="list-favorite-events",
+        name="favorites-list",
     ),
     path(
-        "favorites/add/", AddFavoriteEventAPIView.as_view(), name="add-favorite-event"
+        "api/v1/favorites/add/", AddFavoriteEventAPIView.as_view(), name="favorites-add"
     ),
     path(
-        "favorites/remove/",
+        "api/v1/favorites/remove/",
         RemoveFavoriteEventAPIView.as_view(),
-        name="remove-favorite-event",
+        name="favorites-remove",
     ),
-    path("unviewed/list", UnviewedEventsAPIView.as_view(), name="unviewed-events"),
+    # Events
+    path("api/v1/events/", EventListView.as_view(), name="events-list"),
     path(
-        "events/<uuid:event_id>/link/",
-        EventLinkTrackView.as_view(),
-        name="event_link_track",
+        "api/v1/events/<uuid:event_id>/",
+        EventDetailAPIView.as_view(),
+        name="events-detail",
     ),
-    path("event/<uuid:event_id>/", EventDetailAPIView.as_view(), name="event-detail"),
-    path("api/user-actions/", UserActionsAPIView.as_view(), name="user-actions"),
-    path("api/events/", EventListView.as_view(), name="event-list"),
+    path(
+        "api/v1/events/<uuid:event_id>/link/",
+        EventLinkTrackView.as_view(),
+        name="events-link-track",
+    ),
+    path(
+        "api/v1/events/unviewed/",
+        UnviewedEventsAPIView.as_view(),
+        name="events-unviewed",
+    ),
+    # User Actions
+    path(
+        "api/v1/user-actions/", UserActionsAPIView.as_view(), name="user-actions-list"
+    ),
 ]

@@ -23,21 +23,38 @@ User = get_user_model()
 
 
 @extend_schema(
+    auth=None,
     tags=["User"],
-    summary="Получение списка избранных Event",
-    description="Этот эндпоинт возвращает список всех избранных Event пользователя.",
+    summary="Получение списка избранных событий",
+    description="Возвращает список событий, которые пользователь отметил как избранные.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: {"description": "Список избранных Event"},
-        404: {"description": "Пользователь не найден"},
+        200: OpenApiResponse(
+            description="Список избранных событий",
+            response=EventsLikesSerializer(many=True),
+        ),
+        400: OpenApiResponse(
+            description="Ошибка запроса",
+            examples=[
+                OpenApiExample("Ошибка", value={"error": "Необходимо указать user_id"})
+            ],
+        ),
+        404: OpenApiResponse(
+            description="Пользователь не найден",
+            examples=[
+                OpenApiExample(
+                    "Пользователь не найден", value={"error": "Пользователь не найден"}
+                )
+            ],
+        ),
     },
 )
 class ListFavoriteEventsAPIView(generics.ListAPIView):
@@ -85,29 +102,40 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["User"],
-    summary="Добавление Event в избранное",
-    description="Этот эндпоинт позволяет пользователю добавить Event в список избранного.",
+    summary="Добавление события в избранное",
+    description="Позволяет добавить событие в список избранных пользователя.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="event_id",
-            description="ID события, которое нужно добавить в избранное",
+            description="UUID события",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: {"description": "Event успешно добавлен в избранное"},
-        404: {"description": "Пользователь или Event не найден"},
-        400: {"description": "Event уже в избранном"},
+        200: OpenApiResponse(description="Событие добавлено в избранное"),
+        400: OpenApiResponse(
+            description="Ошибка запроса",
+            examples=[
+                OpenApiExample("Ошибка", value={"error": "Event уже в избранном"})
+            ],
+        ),
+        404: OpenApiResponse(
+            description="Пользователь или событие не найдено",
+            examples=[
+                OpenApiExample("Ошибка", value={"error": "Пользователь не найден"})
+            ],
+        ),
     },
 )
 class AddFavoriteEventAPIView(APIView):
@@ -160,29 +188,38 @@ class AddFavoriteEventAPIView(APIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["User"],
-    summary="Удаление Event из избранного",
-    description="Этот эндпоинт позволяет пользователю удалить Event из списка избранного.",
+    summary="Удаление события из избранного",
+    description="Позволяет удалить событие из списка избранных пользователя.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="event_id",
-            description="ID события, которое нужно удалить из избранного",
+            description="UUID события",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: {"description": "Event успешно удален из избранного"},
-        404: {"description": "Пользователь или Event не найден"},
-        400: {"description": "Event не был в избранном"},
+        200: OpenApiResponse(description="Событие удалено из избранного"),
+        400: OpenApiResponse(
+            description="Ошибка запроса",
+            examples=[
+                OpenApiExample("Ошибка", value={"error": "Event не был в избранном"})
+            ],
+        ),
+        404: OpenApiResponse(
+            description="Пользователь или событие не найдено",
+            examples=[OpenApiExample("Ошибка", value={"error": "Event не найден"})],
+        ),
     },
 )
 class RemoveFavoriteEventAPIView(APIView):
@@ -242,21 +279,36 @@ class RemoveFavoriteEventAPIView(APIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["User"],
-    summary="Список непросмотренных Event",
-    description="Этот эндпоинт возвращает события, которые пользователь ещё не посмотрел.",
+    summary="Список непросмотренных событий",
+    description="Возвращает события, которые пользователь ещё не просмотрел.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: EventsUnviewedSerializer(many=True),
-        404: {"description": "Пользователь не найден"},
+        200: OpenApiResponse(
+            description="Список непросмотренных событий",
+            response=EventsUnviewedSerializer(many=True),
+        ),
+        400: OpenApiResponse(
+            description="Ошибка запроса",
+            examples=[
+                OpenApiExample("Ошибка", value={"error": "Необходимо указать user_id"})
+            ],
+        ),
+        404: OpenApiResponse(
+            description="Пользователь не найден",
+            examples=[
+                OpenApiExample("Ошибка", value={"error": "Пользователь не найден"})
+            ],
+        ),
     },
 )
 class UnviewedEventsAPIView(generics.ListAPIView):
@@ -306,10 +358,10 @@ class UnviewedEventsAPIView(generics.ListAPIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["Events"],
     summary="Фиксация перехода по ссылке события",
-    description="Этот эндпоинт устанавливает флаг `is_linked=True` для связки пользователь-событие, "
-    "что означает, что пользователь действительно перешёл по ссылке (`type_url`).",
+    description="Отмечает, что пользователь перешёл по ссылке события.",
     parameters=[
         OpenApiParameter(
             name="event_id",
@@ -320,30 +372,23 @@ class UnviewedEventsAPIView(generics.ListAPIView):
         ),
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: OpenApiResponse(
-            description="Переход успешно зафиксирован",
+        200: OpenApiResponse(description="Переход успешно зафиксирован"),
+        400: OpenApiResponse(
+            description="Ошибка запроса",
             examples=[
-                OpenApiExample(
-                    "Успешный переход",
-                    value={"message": "Переход по ссылке зафиксирован."},
-                )
+                OpenApiExample("Ошибка", value={"error": "Необходимо указать user_id"})
             ],
         ),
         404: OpenApiResponse(
             description="Событие не найдено",
-            examples=[
-                OpenApiExample(
-                    "Событие не существует",
-                    value={"error": "Событие не найдено."},
-                )
-            ],
+            examples=[OpenApiExample("Ошибка", value={"error": "Событие не найдено."})],
         ),
     },
 )
@@ -392,38 +437,28 @@ class EventLinkTrackView(APIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["Events"],
-    summary="Получение детальной информации о Event",
-    description="Этот эндпоинт возвращает подробную информацию о конкретном Event по его ID. Передайте `user_id` как query параметр, чтобы зафиксировать просмотр.",
+    summary="Получение детальной информации о событии",
+    description="Возвращает полную информацию о событии. При передаче `user_id` зафиксирует просмотр события пользователем.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя для фиксации просмотра и определения is_like/is_viewed",
+            description="UUID пользователя",
             required=False,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
-    responses={200: EventSerializer, 404: {"description": "Event не найден"}},
-    examples=[
-        OpenApiExample(
-            "Детальная информация о Event",
-            value={
-                "event_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-                "title": "Summer Internship Program",
-                "description": "3-month internship opportunity for students",
-                "image": "/media/images/3fa85f64-5717-4562-b3fc-2c963f66afa6.jpg",
-                "deadline": "2025-06-30",
-                "types_event": "internship",
-                "type_url": "https://example.com/internships",
-                "company": "apple",
-                "is_liked": True,
-                "is_viewed": True,
-                "created_at": "2025-03-15T10:30:00Z",
-                "updated_at": "2025-03-15T10:30:00Z",
-            },
-        )
-    ],
+    responses={
+        200: OpenApiResponse(
+            description="Детальная информация о событии", response=EventSerializer
+        ),
+        404: OpenApiResponse(
+            description="Событие не найдено",
+            examples=[OpenApiExample("Ошибка", value={"error": "Событие не найдено"})],
+        ),
+    },
 )
 class EventDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
@@ -462,33 +497,38 @@ class EventDetailAPIView(generics.RetrieveAPIView):
 
 
 @extend_schema(
+    auth=None,
     tags=["Events"],
-    summary="Получение списка Event с фильтрацией и поиском",
-    description="Этот эндпоинт возвращает список событий. Можно фильтровать по `types_event` и искать по названию с помощью `query`. Требуется указать `user_id`.",
+    summary="Список событий с фильтрацией",
+    description="Возвращает список событий с возможностью поиска по названию и фильтрации по типу события.",
     parameters=[
         OpenApiParameter(
             name="query",
-            description="Часть названия события для поиска",
+            description="Поиск по названию события",
             required=False,
             type=str,
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="types_event",
-            description="Тип события (например, internship)",
+            description="Фильтрация по типу события",
             required=False,
             type=str,
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="ordering",
-            description="Поле для сортировки (например, -created_at)",
+            description="Сортировка событий",
             required=False,
             type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
-    responses={200: EventSerializer(many=True)},
+    responses={
+        200: OpenApiResponse(
+            description="Список событий", response=EventSerializer(many=True)
+        ),
+    },
 )
 class EventListView(generics.ListAPIView):
     queryset = Event.objects.all()
@@ -514,33 +554,40 @@ class EventListView(generics.ListAPIView):
 
 
 @extend_schema(
-    tags=["Events"],
+    auth=None,
+    tags=["User"],
+    summary="Получение действий пользователя",
+    description="Возвращает список событий, которые пользователь лайкнул или просмотрел.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя, для которого запрашиваются действия.",
+            description="UUID пользователя",
             required=True,
-            type=str,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: {
-            "type": "object",
-            "properties": {
-                "liked_events": {
-                    "type": "array",
-                    "items": {"type": "string", "format": "uuid"},
-                    "description": "Список UUID событий, которые пользователь лайкнул.",
-                },
-                "viewed_events": {
-                    "type": "array",
-                    "items": {"type": "string", "format": "uuid"},
-                    "description": "Список UUID событий, которые пользователь просмотрел.",
-                },
-            },
-        },
-        400: {"description": "Bad Request (Parameter user_id is required)"},
+        200: OpenApiResponse(
+            description="Лайкнутые и просмотренные события",
+            examples=[
+                OpenApiExample(
+                    "Успешный ответ",
+                    value={
+                        "liked_events": ["uuid1", "uuid2"],
+                        "viewed_events": ["uuid3", "uuid4"],
+                    },
+                )
+            ],
+        ),
+        400: OpenApiResponse(
+            description="Ошибка запроса",
+            examples=[
+                OpenApiExample(
+                    "Ошибка", value={"detail": "Parameter user_id is required"}
+                )
+            ],
+        ),
     },
 )
 class UserActionsAPIView(APIView):
