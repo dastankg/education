@@ -30,9 +30,9 @@ User = get_user_model()
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -68,8 +68,8 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
             return Event.objects.none()
 
         try:
-            user = User.objects.get(id=user_id, is_active=True)
-        except User.DoesNotExist:
+            user = User.objects.get(id=int(user_id), is_active=True)
+        except (User.DoesNotExist, ValueError):
             return Event.objects.none()
 
         return Event.objects.filter(views__user=user, views__is_liked=True).order_by(
@@ -87,8 +87,8 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
                 )
 
             try:
-                User.objects.get(id=user_id, is_active=True)
-            except User.DoesNotExist:
+                User.objects.get(id=int(user_id), is_active=True)
+            except (User.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
@@ -109,16 +109,16 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="event_id",
-            description="UUID события",
+            description="ID события",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -153,16 +153,16 @@ class AddFavoriteEventAPIView(APIView):
                 )
 
             try:
-                user = User.objects.get(id=user_id, is_active=True)
-            except User.DoesNotExist:
+                user = User.objects.get(id=int(user_id), is_active=True)
+            except (User.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
             try:
-                event = Event.objects.get(event_id=event_id)
-            except Event.DoesNotExist:
+                event = Event.objects.get(id=int(event_id))
+            except (Event.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Event не найден"}, status=status.HTTP_404_NOT_FOUND
                 )
@@ -195,16 +195,16 @@ class AddFavoriteEventAPIView(APIView):
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="event_id",
-            description="UUID события",
+            description="ID события",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -237,16 +237,16 @@ class RemoveFavoriteEventAPIView(APIView):
                 )
 
             try:
-                user = User.objects.get(id=user_id, is_active=True)
-            except User.DoesNotExist:
+                user = User.objects.get(id=int(user_id), is_active=True)
+            except (User.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
             try:
-                event = Event.objects.get(event_id=event_id)
-            except Event.DoesNotExist:
+                event = Event.objects.get(id=int(event_id))
+            except (Event.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Event не найден"}, status=status.HTTP_404_NOT_FOUND
                 )
@@ -286,9 +286,9 @@ class RemoveFavoriteEventAPIView(APIView):
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -322,15 +322,15 @@ class UnviewedEventsAPIView(generics.ListAPIView):
             return Event.objects.none()
 
         try:
-            user = User.objects.get(user_id=user_id, is_active=True)
-        except User.DoesNotExist:
+            user = User.objects.get(id=int(user_id), is_active=True)
+        except (User.DoesNotExist, ValueError):
             return Event.objects.none()
 
         viewed_events = EventView.objects.filter(user=user, is_viewed=True).values_list(
-            "event__event_id", flat=True
+            "event__id", flat=True
         )
 
-        return Event.objects.exclude(event_id__in=viewed_events)
+        return Event.objects.exclude(id__in=viewed_events)
 
     def list(self, request, *args, **kwargs):
         try:
@@ -343,8 +343,8 @@ class UnviewedEventsAPIView(generics.ListAPIView):
                 )
 
             try:
-                User.objects.get(user_id=user_id, is_active=True)
-            except User.DoesNotExist:
+                User.objects.get(id=int(user_id), is_active=True)
+            except (User.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
@@ -365,16 +365,16 @@ class UnviewedEventsAPIView(generics.ListAPIView):
     parameters=[
         OpenApiParameter(
             name="event_id",
-            description="UUID события",
+            description="ID события",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.PATH,
         ),
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -406,16 +406,16 @@ class EventLinkTrackView(APIView):
                 )
 
             try:
-                user = User.objects.get(id=user_id, is_active=True)
-            except User.DoesNotExist:
+                user = User.objects.get(id=int(user_id), is_active=True)
+            except (User.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
             try:
-                event = Event.objects.get(event_id=event_id)
-            except Event.DoesNotExist:
+                event = Event.objects.get(id=int(event_id))
+            except (Event.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Событие не найдено."},
                     status=status.HTTP_404_NOT_FOUND,
@@ -444,9 +444,9 @@ class EventLinkTrackView(APIView):
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=False,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -464,7 +464,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    lookup_field = "event_id"
+    lookup_field = "id"
 
     def get(self, request, *args, **kwargs):
         try:
@@ -474,16 +474,17 @@ class EventDetailAPIView(generics.RetrieveAPIView):
             event.save()
             if user_id:
                 try:
-                    user = User.objects.get(id=user_id)
+                    user = User.objects.get(id=int(user_id))
 
                     try:
                         event_view = EventView.objects.get(user=user, event=event)
                         event_view.is_viewed = True
+                        event_view.save(update_fields=["is_viewed"])
 
                     except EventView.DoesNotExist:
                         EventView.objects.create(user=user, event=event, is_viewed=True)
 
-                except User.DoesNotExist:
+                except (User.DoesNotExist, ValueError):
                     pass
 
             serializer = self.get_serializer(
@@ -561,9 +562,9 @@ class EventListView(generics.ListAPIView):
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="UUID пользователя",
+            description="ID пользователя",
             required=True,
-            type={"type": "string", "format": "uuid"},
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -574,8 +575,8 @@ class EventListView(generics.ListAPIView):
                 OpenApiExample(
                     "Успешный ответ",
                     value={
-                        "liked_events": ["uuid1", "uuid2"],
-                        "viewed_events": ["uuid3", "uuid4"],
+                        "liked_events": [1, 2],
+                        "viewed_events": [3, 4],
                     },
                 )
             ],
@@ -601,16 +602,24 @@ class UserActionsAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return Response(
+                {"detail": "Invalid user_id format"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         user_actions = EventView.objects.filter(user_id=user_id)
 
         liked_events = []
         viewed_events = []
 
         for action in user_actions:
-            event_uuid = str(action.event.event_id)
+            event_id = action.event.id
             if action.is_liked:
-                liked_events.append(event_uuid)
+                liked_events.append(event_id)
             if action.is_viewed:
-                viewed_events.append(event_uuid)
+                viewed_events.append(event_id)
 
         return Response({"liked_events": liked_events, "viewed_events": viewed_events})

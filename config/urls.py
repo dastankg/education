@@ -39,16 +39,7 @@ urlpatterns = [
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
 
-    path(
-        "api/v1/auth/reset-password-request/",
-        PasswordResetRequestView.as_view(),
-        name="reset_password_request",
-    ),
-    path(
-        "api/v1/auth/reset-password-confirm/",
-        PasswordResetConfirmView.as_view(),
-        name="reset_password_confirm",
-    ),
+
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
         CustomConfirmEmailView.as_view(),
@@ -82,14 +73,14 @@ urlpatterns = [
     # Events
     path("api/v1/events/", EventListView.as_view(), name="events-list"),
     path(
-        "api/v1/events/<uuid:event_id>/",
-        EventDetailAPIView.as_view(),
-        name="events-detail",
+        "api/v2/auth/reset-password-request/",
+        PasswordResetRequestView.as_view(),
+        name="reset_password_request",
     ),
     path(
-        "api/v1/events/<uuid:event_id>/link/",
-        EventLinkTrackView.as_view(),
-        name="events-link-track",
+        "api/v2/auth/reset-password-confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="reset_password_confirm",
     ),
     path(
         "api/v1/events/unviewed/",

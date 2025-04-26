@@ -102,7 +102,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
 
 class CustomUserDetailsSerializer(UserDetailsSerializer):
     age = serializers.IntegerField(required=False)
-    user_type = serializers.CharField(required=False)
+    type = serializers.CharField(required=False)
 
     class Meta(UserDetailsSerializer.Meta):
         model = User
@@ -111,5 +111,5 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             "email",
             "full_name",
             "age",
-            "user_type",
+            "type",
         )

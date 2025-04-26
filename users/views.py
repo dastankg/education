@@ -38,18 +38,18 @@ class CustomConfirmEmailView(ConfirmEmailView):
 
     def get_object(self, queryset=None):
         key = self.kwargs.get("key")
-        print(f"🔍 Получен ключ: {key}")
+        print(f"Получен ключ: {key}")
 
         confirmation = EmailConfirmationHMAC.from_key(key)
         if confirmation:
-            print("✅ Найден через HMAC")
+            print("Найден через HMAC")
             return confirmation
 
         try:
             confirmation = EmailConfirmation.objects.get(key=key.lower())
-            print("✅ Найден через ORM")
+            print("Найден через ORM")
         except EmailConfirmation.DoesNotExist:
-            print("❌ Не найден ключ в базе данных")
+            print("Не найден ключ в базе данных")
             confirmation = None
 
         return confirmation
@@ -72,14 +72,14 @@ class VerificationSuccessView(TemplateView):
                 OpenApiExample(
                     "Успешный ответ",
                     value={"message": "Код для сброса пароля отправлен на ваш email."},
-                ),
+                )
             ],
         ),
         400: OpenApiResponse(
-            description="Email не найден",
+            description="Ошибка запроса",
             examples=[
                 OpenApiExample(
-                    "Ошибка запроса",
+                    "Email не найден",
                     value={"error": "Пользователь с указанным email не найден."},
                 ),
             ],
@@ -121,6 +121,7 @@ class PasswordResetRequestView(APIView):
             )
 
 
+
 @extend_schema(
     auth=None,
     tags=["auth"],
@@ -134,11 +135,11 @@ class PasswordResetRequestView(APIView):
                 OpenApiExample(
                     "Успешный ответ",
                     value={"message": "Пароль успешно изменен."},
-                ),
+                )
             ],
         ),
         400: OpenApiResponse(
-            description="Ошибка валидации или недействительный код",
+            description="Ошибка запроса",
             examples=[
                 OpenApiExample(
                     "Ошибка валидации",
@@ -220,7 +221,16 @@ class PasswordResetConfirmView(APIView):
         ),
     ],
     request={
-        "application/json": OpenApiTypes.OBJECT,
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "device_token": {
+                    "type": "string",
+                    "description": "FCM токен устройства",
+                }
+            },
+            "required": ["device_token"],
+        }
     },
     responses={
         200: OpenApiResponse(
