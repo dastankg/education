@@ -322,15 +322,14 @@ class UnviewedEventsAPIView(generics.ListAPIView):
             return Event.objects.none()
 
         try:
-            user = User.objects.get(id=int(user_id), is_active=True)
+            user = User.objects.get(id=user_id, is_active=True)
         except (User.DoesNotExist, ValueError):
             return Event.objects.none()
 
         viewed_events = EventView.objects.filter(user=user, is_viewed=True).values_list(
-            "event__id", flat=True
+            "event__event_id", flat=True
         )
-
-        return Event.objects.exclude(id__in=viewed_events)
+        return Event.objects.exclude(event_id__in=viewed_events)
 
     def list(self, request, *args, **kwargs):
         try:
@@ -517,13 +516,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
             type=str,
             location=OpenApiParameter.QUERY,
         ),
-        OpenApiParameter(
-            name="ordering",
-            description="Сортировка событий",
-            required=False,
-            type=str,
-            location=OpenApiParameter.QUERY,
-        ),
+
     ],
     responses={
         200: OpenApiResponse(
