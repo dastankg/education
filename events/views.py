@@ -102,40 +102,29 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
 
 
 @extend_schema(
-    auth=None,
-    tags=["User"],
-    summary="Добавление события в избранное",
-    description="Позволяет добавить событие в список избранных пользователя.",
+    tags=["UserProfile"],
+    summary="Добавление Event в избранное",
+    description="Этот эндпоинт позволяет пользователю добавить Event в список избранного.",
     parameters=[
         OpenApiParameter(
             name="user_id",
             description="ID пользователя",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="event_id",
-            description="ID события",
+            description="ID события, которое нужно добавить в избранное",
             required=True,
             type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: OpenApiResponse(description="Событие добавлено в избранное"),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample("Ошибка", value={"error": "Event уже в избранном"})
-            ],
-        ),
-        404: OpenApiResponse(
-            description="Пользователь или событие не найдено",
-            examples=[
-                OpenApiExample("Ошибка", value={"error": "Пользователь не найден"})
-            ],
-        ),
+        200: {"description": "Event успешно добавлен в избранное"},
+        404: {"description": "Пользователь или Event не найден"},
+        400: {"description": "Event уже в избранном"},
     },
 )
 class AddFavoriteEventAPIView(APIView):
@@ -154,15 +143,15 @@ class AddFavoriteEventAPIView(APIView):
 
             try:
                 user = User.objects.get(id=user_id, is_active=True)
-            except (User.DoesNotExist, ValueError):
+            except User.DoesNotExist:
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
             try:
-                event = Event.objects.get(event_id=int(event_id))
-            except (Event.DoesNotExist, ValueError):
+                event = Event.objects.get(event_id=event_id)
+            except Event.DoesNotExist:
                 return Response(
                     {"error": "Event не найден"}, status=status.HTTP_404_NOT_FOUND
                 )
@@ -188,38 +177,29 @@ class AddFavoriteEventAPIView(APIView):
 
 
 @extend_schema(
-    auth=None,
-    tags=["User"],
-    summary="Удаление события из избранного",
-    description="Позволяет удалить событие из списка избранных пользователя.",
+    tags=["UserProfile"],
+    summary="Удаление Event из избранного",
+    description="Этот эндпоинт позволяет пользователю удалить Event из списка избранного.",
     parameters=[
         OpenApiParameter(
             name="user_id",
             description="ID пользователя",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
         OpenApiParameter(
             name="event_id",
-            description="ID события",
+            description="ID события, которое нужно удалить из избранного",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: OpenApiResponse(description="Событие удалено из избранного"),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample("Ошибка", value={"error": "Event не был в избранном"})
-            ],
-        ),
-        404: OpenApiResponse(
-            description="Пользователь или событие не найдено",
-            examples=[OpenApiExample("Ошибка", value={"error": "Event не найден"})],
-        ),
+        200: {"description": "Event успешно удален из избранного"},
+        404: {"description": "Пользователь или Event не найден"},
+        400: {"description": "Event не был в избранном"},
     },
 )
 class RemoveFavoriteEventAPIView(APIView):
@@ -237,16 +217,16 @@ class RemoveFavoriteEventAPIView(APIView):
                 )
 
             try:
-                user = User.objects.get(id=int(user_id), is_active=True)
-            except (User.DoesNotExist, ValueError):
+                user = User.objects.get(id=user_id, is_active=True)
+            except User.DoesNotExist:
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
             try:
-                event = Event.objects.get(id=int(event_id))
-            except (Event.DoesNotExist, ValueError):
+                event = Event.objects.get(event_id=event_id)
+            except Event.DoesNotExist:
                 return Response(
                     {"error": "Event не найден"}, status=status.HTTP_404_NOT_FOUND
                 )
