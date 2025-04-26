@@ -89,7 +89,7 @@ urlpatterns = [
         UnviewedEventsAPIView.as_view(),
         name="events-unviewed",
     ),
-    path('api/events/track/<uuid:link_id>/', EventLinkTrackView.as_view(), name='event-link-track'),
+    path('api/events/track/<uuid:event_id>/', EventLinkTrackView.as_view(), name='event-link-track'),
 
     path('api/events/<int:pk>/', EventDetailAPIView.as_view(), name='event-detail'),
 

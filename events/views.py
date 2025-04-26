@@ -414,7 +414,7 @@ class EventLinkTrackView(APIView):
             name="user_id",
             description="UUID пользователя для фиксации просмотра и определения is_like/is_viewed",
             required=False,
-            type=str,
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -431,8 +431,6 @@ class EventLinkTrackView(APIView):
                 "types_event": "internship",
                 "type_url": "https://example.com/internships",
                 "company": "apple",
-                "is_liked": True,
-                "is_viewed": True,
                 "created_at": "2025-03-15T10:30:00Z",
                 "updated_at": "2025-03-15T10:30:00Z",
             },
@@ -527,7 +525,7 @@ class EventListView(generics.ListAPIView):
 
 
 @extend_schema(
-    tags=["Events"],
+    tags=["User"],
     parameters=[
         OpenApiParameter(
             name="user_id",
