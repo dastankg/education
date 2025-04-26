@@ -17,7 +17,8 @@ class CustomRegisterSerializer(RegisterSerializer):
     username = None
 
     full_name = serializers.CharField(required=False)
-
+    age = serializers.IntegerField(required=False)
+    type = serializers.CharField(required=False, max_length=50)
     def validate_email(self, email):
         email = super().validate_email(email)
         if User.objects.filter(email=email).exists():
@@ -32,6 +33,8 @@ class CustomRegisterSerializer(RegisterSerializer):
             "password1": self.validated_data.get("password1", ""),
             "password2": self.validated_data.get("password2", ""),
             "full_name": self.validated_data.get("full_name", ""),
+            "age": self.validated_data.get("age", None),
+            "type": self.validated_data.get("type", ""),
         }
 
 
