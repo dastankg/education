@@ -37,6 +37,13 @@ class CustomRegisterSerializer(RegisterSerializer):
             "type": self.validated_data.get("type", ""),
         }
 
+    def save(self, request):
+        user = super().save(request)
+        user.full_name = self.cleaned_data.get('full_name', '')
+        user.age = self.cleaned_data.get('age')
+        user.type = self.cleaned_data.get('type', '')
+        user.save()
+        return user
 
 class CustomLoginSerializer(LoginSerializer):
     username = None
