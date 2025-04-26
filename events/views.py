@@ -456,7 +456,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
                     try:
                         event_view = EventView.objects.get(user=user, event=event)
                         event_view.is_viewed = True
-
+                        event_view.save()
                     except EventView.DoesNotExist:
                         EventView.objects.create(user=user, event=event, is_viewed=True)
 

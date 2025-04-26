@@ -63,14 +63,14 @@ class EventAdmin(admin.ModelAdmin):
             views_total=Count("views", filter=Q(views__is_viewed=True)),
             views_school=Count(
                 "views",
-                filter=Q(views__is_viewed=True, views__type="школьник(ца)"),
+                filter=Q(views__is_viewed=True, views__user__type="школьник(ца)"),
             ),
             views_student=Count(
                 "views",
-                filter=Q(views__is_viewed=True, views__type="студент(ка)"),
+                filter=Q(views__is_viewed=True, views__user__type="студент(ка)"),
             ),
             views_other=Count(
-                "views", filter=Q(views__is_viewed=True, views__type="другое")
+                "views", filter=Q(views__is_viewed=True, views__user__type="другое")
             ),
             total_likes=Count("views", filter=Q(views__is_liked=True)),
             likes_school=Count(
