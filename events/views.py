@@ -23,7 +23,7 @@ User = get_user_model()
 
 
 @extend_schema(
-    tags=["UserProfile"],
+    tags=["User"],
     summary="Получение списка избранных Event",
     description="Этот эндпоинт возвращает список всех избранных Event пользователя.",
     parameters=[
@@ -85,7 +85,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
 
 
 @extend_schema(
-    tags=["UserProfile"],
+    tags=["User"],
     summary="Добавление Event в избранное",
     description="Этот эндпоинт позволяет пользователю добавить Event в список избранного.",
     parameters=[
@@ -160,7 +160,7 @@ class AddFavoriteEventAPIView(APIView):
 
 
 @extend_schema(
-    tags=["UserProfile"],
+    tags=["User"],
     summary="Удаление Event из избранного",
     description="Этот эндпоинт позволяет пользователю удалить Event из списка избранного.",
     parameters=[
@@ -320,37 +320,44 @@ class UnviewedEventsAPIView(generics.ListAPIView):
 
 
 @extend_schema(
-    auth=None,
     tags=["Events"],
     summary="Фиксация перехода по ссылке события",
-    description="Отмечает, что пользователь перешёл по ссылке события.",
+    description="Этот эндпоинт устанавливает флаг `is_linked=True` для связки пользователь-событие, "
+                "что означает, что пользователь действительно перешёл по ссылке (`type_url`).",
     parameters=[
         OpenApiParameter(
             name="event_id",
-            description="ID события",
+            description="UUID события",
             required=True,
-            type=int,
+            type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.PATH,
         ),
         OpenApiParameter(
             name="user_id",
             description="ID пользователя",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: OpenApiResponse(description="Переход успешно зафиксирован"),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
+        200: OpenApiResponse(
+            description="Переход успешно зафиксирован",
             examples=[
-                OpenApiExample("Ошибка", value={"error": "Необходимо указать user_id"})
+                OpenApiExample(
+                    "Успешный переход",
+                    value={"message": "Переход по ссылке зафиксирован."},
+                )
             ],
         ),
         404: OpenApiResponse(
             description="Событие не найдено",
-            examples=[OpenApiExample("Ошибка", value={"error": "Событие не найдено."})],
+            examples=[
+                OpenApiExample(
+                    "Событие не существует",
+                    value={"error": "Событие не найдено."},
+                )
+            ],
         ),
     },
 )
@@ -368,16 +375,16 @@ class EventLinkTrackView(APIView):
                 )
 
             try:
-                user = User.objects.get(id=int(user_id), is_active=True)
-            except (User.DoesNotExist, ValueError):
+                user = User.objects.get(id=user_id, is_active=True)
+            except User.DoesNotExist:
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
             try:
-                event = Event.objects.get(id=int(event_id))
-            except (Event.DoesNotExist, ValueError):
+                event = Event.objects.get(event_id=event_id)
+            except Event.DoesNotExist:
                 return Response(
                     {"error": "Событие не найдено."},
                     status=status.HTTP_404_NOT_FOUND,
@@ -399,34 +406,44 @@ class EventLinkTrackView(APIView):
 
 
 @extend_schema(
-    auth=None,
     tags=["Events"],
-    summary="Получение детальной информации о событии",
-    description="Возвращает полную информацию о событии. При передаче `user_id` зафиксирует просмотр события пользователем.",
+    summary="Получение детальной информации о Event",
+    description="Этот эндпоинт возвращает подробную информацию о конкретном Event по его ID. Передайте `user_id` как query параметр, чтобы зафиксировать просмотр.",
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя для фиксации просмотра и определения is_like/is_viewed",
             required=False,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
-    responses={
-        200: OpenApiResponse(
-            description="Детальная информация о событии", response=EventSerializer
-        ),
-        404: OpenApiResponse(
-            description="Событие не найдено",
-            examples=[OpenApiExample("Ошибка", value={"error": "Событие не найдено"})],
-        ),
-    },
+    responses={200: EventSerializer, 404: {"description": "Event не найден"}},
+    examples=[
+        OpenApiExample(
+            "Детальная информация о Event",
+            value={
+                "event_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                "title": "Summer Internship Program",
+                "description": "3-month internship opportunity for students",
+                "image": "/media/images/3fa85f64-5717-4562-b3fc-2c963f66afa6.jpg",
+                "deadline": "2025-06-30",
+                "types_event": "internship",
+                "type_url": "https://example.com/internships",
+                "company": "apple",
+                "is_liked": True,
+                "is_viewed": True,
+                "created_at": "2025-03-15T10:30:00Z",
+                "updated_at": "2025-03-15T10:30:00Z",
+            },
+        )
+    ],
 )
 class EventDetailAPIView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    lookup_field = "id"
+    lookup_field = "event_id"
 
     def get(self, request, *args, **kwargs):
         try:
@@ -436,17 +453,16 @@ class EventDetailAPIView(generics.RetrieveAPIView):
             event.save()
             if user_id:
                 try:
-                    user = User.objects.get(id=int(user_id))
+                    user = User.objects.get(id=user_id)
 
                     try:
                         event_view = EventView.objects.get(user=user, event=event)
                         event_view.is_viewed = True
-                        event_view.save(update_fields=["is_viewed"])
 
                     except EventView.DoesNotExist:
                         EventView.objects.create(user=user, event=event, is_viewed=True)
 
-                except (User.DoesNotExist, ValueError):
+                except User.DoesNotExist:
                     pass
 
             serializer = self.get_serializer(
@@ -511,40 +527,33 @@ class EventListView(generics.ListAPIView):
 
 
 @extend_schema(
-    auth=None,
-    tags=["User"],
-    summary="Получение действий пользователя",
-    description="Возвращает список событий, которые пользователь лайкнул или просмотрел.",
+    tags=["Events"],
     parameters=[
         OpenApiParameter(
             name="user_id",
-            description="ID пользователя",
+            description="UUID пользователя, для которого запрашиваются действия.",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: OpenApiResponse(
-            description="Лайкнутые и просмотренные события",
-            examples=[
-                OpenApiExample(
-                    "Успешный ответ",
-                    value={
-                        "liked_events": [1, 2],
-                        "viewed_events": [3, 4],
-                    },
-                )
-            ],
-        ),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample(
-                    "Ошибка", value={"detail": "Parameter user_id is required"}
-                )
-            ],
-        ),
+        200: {
+            "type": "object",
+            "properties": {
+                "liked_events": {
+                    "type": "array",
+                    "items": {"type": "string", "format": "uuid"},
+                    "description": "Список UUID событий, которые пользователь лайкнул.",
+                },
+                "viewed_events": {
+                    "type": "array",
+                    "items": {"type": "string", "format": "uuid"},
+                    "description": "Список UUID событий, которые пользователь просмотрел.",
+                },
+            },
+        },
+        400: {"description": "Bad Request (Parameter user_id is required)"},
     },
 )
 class UserActionsAPIView(APIView):
@@ -558,24 +567,16 @@ class UserActionsAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            return Response(
-                {"detail": "Invalid user_id format"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
         user_actions = EventView.objects.filter(user_id=user_id)
 
         liked_events = []
         viewed_events = []
 
         for action in user_actions:
-            event_id = action.event.id
+            event_uuid = str(action.event.event_id)
             if action.is_liked:
-                liked_events.append(event_id)
+                liked_events.append(event_uuid)
             if action.is_viewed:
-                viewed_events.append(event_id)
+                viewed_events.append(event_uuid)
 
         return Response({"liked_events": liked_events, "viewed_events": viewed_events})
