@@ -118,7 +118,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
             name="event_id",
             description="ID события",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
@@ -153,7 +153,7 @@ class AddFavoriteEventAPIView(APIView):
                 )
 
             try:
-                user = User.objects.get(id=int(user_id), is_active=True)
+                user = User.objects.get(id=user_id, is_active=True)
             except (User.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Пользователь не найден"},
@@ -161,7 +161,7 @@ class AddFavoriteEventAPIView(APIView):
                 )
 
             try:
-                event = Event.objects.get(id=int(event_id))
+                event = Event.objects.get(event_id=int(event_id))
             except (Event.DoesNotExist, ValueError):
                 return Response(
                     {"error": "Event не найден"}, status=status.HTTP_404_NOT_FOUND
