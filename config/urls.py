@@ -38,7 +38,16 @@ urlpatterns = [
     # Authentication URLs
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
-
+    path(
+        "api/v2/auth/password/reset/",
+        PasswordResetRequestView.as_view(),
+        name="reset_password_request",
+    ),
+    path(
+        "api/v2/auth/password/reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="reset_password_confirm",
+    ),
 
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
@@ -50,13 +59,15 @@ urlpatterns = [
         VerificationSuccessView.as_view(),
         name="auth-verification-success",
     ),
-    # Device Management
+    # User Actions
+    path(
+        "api/v1/user-actions/", UserActionsAPIView.as_view(), name="user-actions-list"
+    ),
     path(
         "api/v1/devices/token/",
         UpdateDeviceTokenView.as_view(),
         name="devices-update-token",
     ),
-    # Favorites
     path(
         "api/v1/favorites/",
         ListFavoriteEventsAPIView.as_view(),
@@ -72,23 +83,15 @@ urlpatterns = [
     ),
     # Events
     path("api/v1/events/", EventListView.as_view(), name="events-list"),
-    path(
-        "api/v2/auth/reset-password-request/",
-        PasswordResetRequestView.as_view(),
-        name="reset_password_request",
-    ),
-    path(
-        "api/v2/auth/reset-password-confirm/",
-        PasswordResetConfirmView.as_view(),
-        name="reset_password_confirm",
-    ),
+
     path(
         "api/v1/events/unviewed/",
         UnviewedEventsAPIView.as_view(),
         name="events-unviewed",
     ),
-    # User Actions
-    path(
-        "api/v1/user-actions/", UserActionsAPIView.as_view(), name="user-actions-list"
-    ),
+    path('events/track/<uuid:link_id>/', EventLinkTrackView.as_view(), name='event-link-track'),
+
+    path('events/<int:pk>/', EventDetailAPIView.as_view(), name='event-detail'),
+
+
 ]

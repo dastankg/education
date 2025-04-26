@@ -128,6 +128,18 @@ class PasswordResetRequestView(APIView):
     summary="Подтверждение сброса пароля",
     description="Этот эндпоинт устанавливает новый пароль после проверки кода сброса.",
     request=PasswordResetConfirmSerializer,
+    examples=[
+        OpenApiExample(
+            'Example request',
+            value={
+                "password": "string123",
+                "password2": "string123",
+                "email": "test@gmail.com",
+                "code": "81FA41"
+            },
+            request_only=True,
+        ),
+    ],
     responses={
         200: OpenApiResponse(
             description="Пароль успешно изменен",
@@ -216,7 +228,7 @@ class PasswordResetConfirmView(APIView):
             name="user_id",
             description="ID пользователя",
             required=True,
-            type=str,
+            type=int,
             location=OpenApiParameter.QUERY,
         ),
     ],
