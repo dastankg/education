@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-
+    'events.apps.EventsConfig',
     'users.apps.UsersConfig',
 
     "drf_spectacular",

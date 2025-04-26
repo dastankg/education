@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
+
+from events.views import ListFavoriteEventsAPIView, RemoveFavoriteEventAPIView, AddFavoriteEventAPIView
 from users.views import PasswordResetConfirmView, PasswordResetRequestView, UpdateDeviceTokenView
 from drf_spectacular.views import (
     SpectacularAPIView,
@@ -30,8 +32,6 @@ urlpatterns = [
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path('api/v1/auth/registration/', include('dj_rest_auth.registration.urls')),
 
-
-
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
         CustomConfirmEmailView.as_view(),
@@ -48,6 +48,21 @@ urlpatterns = [
         "update-device-token/",
         UpdateDeviceTokenView.as_view(),
         name="update-device-token",
+    ),
+    path(
+        "favorites/list/",
+        ListFavoriteEventsAPIView.as_view(),
+        name="list-favorite-events",
+    ),
+
+    path(
+        "favorites/add/", AddFavoriteEventAPIView.as_view(), name="add-favorite-event"
+    ),
+
+    path(
+        "favorites/remove/",
+        RemoveFavoriteEventAPIView.as_view(),
+        name="remove-favorite-event",
     ),
 
 ]
