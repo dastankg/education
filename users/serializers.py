@@ -12,6 +12,7 @@ from django.conf import settings
 
 User = get_user_model()
 
+
 class CustomRegisterSerializer(RegisterSerializer):
     username = None
 
@@ -20,22 +21,24 @@ class CustomRegisterSerializer(RegisterSerializer):
     def validate_email(self, email):
         email = super().validate_email(email)
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError("Пользователь с таким email уже существует.")
+            raise serializers.ValidationError(
+                "Пользователь с таким email уже существует."
+            )
         return email
 
     def get_cleaned_data(self):
         return {
-            'email': self.validated_data.get('email', ''),
-            'password1': self.validated_data.get('password1', ''),
-            'password2': self.validated_data.get('password2', ''),
-            'full_name': self.validated_data.get('full_name', ''),
+            "email": self.validated_data.get("email", ""),
+            "password1": self.validated_data.get("password1", ""),
+            "password2": self.validated_data.get("password2", ""),
+            "full_name": self.validated_data.get("full_name", ""),
         }
 
 
 class CustomLoginSerializer(LoginSerializer):
     username = None
     email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True, style={'input_type': 'password'})
+    password = serializers.CharField(required=True, style={"input_type": "password"})
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):

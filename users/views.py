@@ -4,13 +4,21 @@ from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from allauth.account.views import ConfirmEmailView
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample, OpenApiParameter
+from drf_spectacular.utils import (
+    extend_schema,
+    OpenApiResponse,
+    OpenApiExample,
+    OpenApiParameter,
+)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.models import PasswordReset
-from users.serializers import PasswordResetRequestSerializer, PasswordResetConfirmSerializer
+from users.serializers import (
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
+)
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
@@ -18,7 +26,6 @@ User = get_user_model()
 
 
 class CustomConfirmEmailView(ConfirmEmailView):
-
     def get(self, *args, **kwargs):
         self.object = self.get_object()
 
@@ -198,7 +205,7 @@ class PasswordResetConfirmView(APIView):
 
 
 @extend_schema(
-    tags=["UserProfile"],
+    tags=["User"],
     summary="Обновление токена устройства",
     description="Этот эндпоинт позволяет обновить FCM токен устройства пользователя для получения push-уведомлений.",
     parameters=[

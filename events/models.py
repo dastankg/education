@@ -33,7 +33,7 @@ class Event(models.Model):
     types_event = models.CharField(max_length=100, choices=TYPE_CHOICES)
     type_url = models.URLField()
     company = models.CharField(max_length=100, blank=True, null=True)
-    click = models.IntegerField(blank=True, null=True)
+    click = models.IntegerField(blank=True, null=True, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -47,9 +47,7 @@ class Event(models.Model):
 
 
 class EventView(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="event_views"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="event_views")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="views")
     is_viewed = models.BooleanField(default=False)
     is_liked = models.BooleanField(default=False)
