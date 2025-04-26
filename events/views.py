@@ -23,38 +23,21 @@ User = get_user_model()
 
 
 @extend_schema(
-    auth=None,
-    tags=["User"],
-    summary="Получение списка избранных событий",
-    description="Возвращает список событий, которые пользователь отметил как избранные.",
+    tags=["UserProfile"],
+    summary="Получение списка избранных Event",
+    description="Этот эндпоинт возвращает список всех избранных Event пользователя.",
     parameters=[
         OpenApiParameter(
             name="user_id",
             description="ID пользователя",
             required=True,
-            type=int,
+            type=str,
             location=OpenApiParameter.QUERY,
         ),
     ],
     responses={
-        200: OpenApiResponse(
-            description="Список избранных событий",
-            response=EventsLikesSerializer(many=True),
-        ),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample("Ошибка", value={"error": "Необходимо указать user_id"})
-            ],
-        ),
-        404: OpenApiResponse(
-            description="Пользователь не найден",
-            examples=[
-                OpenApiExample(
-                    "Пользователь не найден", value={"error": "Пользователь не найден"}
-                )
-            ],
-        ),
+        200: {"description": "Список избранных Event"},
+        404: {"description": "Пользователь не найден"},
     },
 )
 class ListFavoriteEventsAPIView(generics.ListAPIView):
@@ -68,8 +51,8 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
             return Event.objects.none()
 
         try:
-            user = User.objects.get(id=int(user_id), is_active=True)
-        except (User.DoesNotExist, ValueError):
+            user = User.objects.get(id=user_id, is_active=True)
+        except User.DoesNotExist:
             return Event.objects.none()
 
         return Event.objects.filter(views__user=user, views__is_liked=True).order_by(
@@ -87,8 +70,8 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
                 )
 
             try:
-                User.objects.get(id=int(user_id), is_active=True)
-            except (User.DoesNotExist, ValueError):
+                User.objects.get(id=user_id, is_active=True)
+            except User.DoesNotExist:
                 return Response(
                     {"error": "Пользователь не найден"},
                     status=status.HTTP_404_NOT_FOUND,
