@@ -41,12 +41,12 @@ urlpatterns = [
     path(
         "api/v1/auth/password/reset/",
         PasswordResetRequestView.as_view(),
-        name="auth-password-reset",
+        name="rest_password_reset",
     ),
     path(
         "api/v1/auth/password/reset/confirm/",
         PasswordResetConfirmView.as_view(),
-        name="auth-password-reset-confirm",
+        name="rest_password_reset_confirm",
     ),
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
