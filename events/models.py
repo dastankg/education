@@ -52,6 +52,7 @@ class EventView(models.Model):
     is_viewed = models.BooleanField(default=False)
     is_liked = models.BooleanField(default=False)
     is_linked = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("user", "event")

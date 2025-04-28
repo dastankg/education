@@ -8,6 +8,8 @@ from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
 )
+from rest_framework.pagination import LimitOffsetPagination
+
 from events.models import Event, EventView
 from rest_framework.response import Response
 from events.serializers import (
@@ -488,16 +490,24 @@ class EventDetailAPIView(generics.RetrieveAPIView):
         ),
         OpenApiParameter(
             name="types_event",
-            description="Фильтрация по типу события",
+            description="Тип события для фильтрации (опционально): grant, internship, event, olympiad, course.",
+            required=False,
+            type=str,
+            enum=["grant", "internship", "event", "olympiad", "course"],
+            location=OpenApiParameter.QUERY,
+        ),
+        OpenApiParameter(
+            name="ordering",
+            description="Сортировка результатов (по умолчанию -created_at)",
             required=False,
             type=str,
             location=OpenApiParameter.QUERY,
         ),
-
     ],
     responses={
         200: OpenApiResponse(
-            description="Список событий", response=EventSerializer(many=True)
+            description="Список событий",
+            response=EventSerializer(many=True)
         ),
     },
 )
@@ -505,7 +515,7 @@ class EventListView(generics.ListAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
-    @method_decorator(cache_page(600))
+    @method_decorator(cache_page(300))
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
@@ -534,21 +544,51 @@ class EventListView(generics.ListAPIView):
             type=str,
             location=OpenApiParameter.QUERY,
         ),
+        OpenApiParameter(
+            name="event_type",
+            description="Тип события для фильтрации (опционально): grant, internship, event, olympiad, course.",
+            required=False,
+            type=str,
+            enum=["grant", "internship", "event", "olympiad", "course"],
+            location=OpenApiParameter.QUERY,
+        ),
+        OpenApiParameter(
+            name="limit",
+            description="Количество элементов на странице (по умолчанию 8).",
+            required=False,
+            type=int,
+            location=OpenApiParameter.QUERY,
+        ),
+        OpenApiParameter(
+            name="offset",
+            description="Смещение от начала списка результатов.",
+            required=False,
+            type=int,
+            location=OpenApiParameter.QUERY,
+        ),
     ],
     responses={
         200: {
             "type": "object",
             "properties": {
-                "liked_events": {
-                    "type": "array",
-                    "items": {"type": "string", "format": "uuid"},
-                    "description": "Список UUID событий, которые пользователь лайкнул.",
-                },
-                "viewed_events": {
-                    "type": "array",
-                    "items": {"type": "string", "format": "uuid"},
-                    "description": "Список UUID событий, которые пользователь просмотрел.",
-                },
+                "count": {"type": "integer", "description": "Общее количество записей"},
+                "next": {"type": ["string", "null"], "description": "URL следующей страницы"},
+                "previous": {"type": ["string", "null"], "description": "URL предыдущей страницы"},
+                "results": {
+                    "type": "object",
+                    "properties": {
+                        "liked_events": {
+                            "type": "array",
+                            "items": {"type": "string", "format": "uuid"},
+                            "description": "Список UUID событий, которые пользователь лайкнул.",
+                        },
+                        "viewed_events": {
+                            "type": "array",
+                            "items": {"type": "string", "format": "uuid"},
+                            "description": "Список UUID событий, которые пользователь просмотрел.",
+                        },
+                    }
+                }
             },
         },
         400: {"description": "Bad Request (Parameter user_id is required)"},
@@ -556,25 +596,41 @@ class EventListView(generics.ListAPIView):
 )
 class UserActionsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    pagination_class = LimitOffsetPagination
 
     def get(self, request):
         user_id = request.query_params.get("user_id")
+        event_type = request.query_params.get("event_type")
+
         if not user_id:
             return Response(
-                {"detail": "Parameter user_id is required"},
+                {"detail": "Параметр user_id обязателен"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user_actions = EventView.objects.filter(user_id=user_id)
+        user_actions_query = EventView.objects.filter(user_id=user_id)
+
+        if event_type:
+            user_actions_query = user_actions_query.filter(event__types_event=event_type)
+
+        user_actions_query = user_actions_query.order_by('-created_at')
+
+        paginator = self.pagination_class()
+        paginated_actions = paginator.paginate_queryset(user_actions_query, request)
 
         liked_events = []
         viewed_events = []
 
-        for action in user_actions:
+        for action in paginated_actions:
             event_uuid = str(action.event.event_id)
             if action.is_liked:
                 liked_events.append(event_uuid)
             if action.is_viewed:
                 viewed_events.append(event_uuid)
 
-        return Response({"liked_events": liked_events, "viewed_events": viewed_events})
+        results = {
+            "liked_events": liked_events,
+            "viewed_events": viewed_events
+        }
+
+        return paginator.get_paginated_response(results)

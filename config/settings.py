@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -174,7 +175,6 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("SMTP_EMAIL")
 EMAIL_HOST_PASSWORD = os.getenv("SMTP_PASSWORD")
 
-from datetime import timedelta
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
