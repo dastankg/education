@@ -587,6 +587,10 @@ class EventListView(generics.ListAPIView):
                             "items": {"type": "string", "format": "uuid"},
                             "description": "Список UUID событий, которые пользователь просмотрел.",
                         },
+                        "unviewed_count": {
+                            "type": "integer",
+                            "description": "Количество непросмотренных событий.",
+                        },
                     }
                 }
             },
@@ -615,6 +619,22 @@ class UserActionsAPIView(APIView):
 
         user_actions_query = user_actions_query.order_by('-created_at')
 
+        events_query = Event.objects.all()
+        if event_type:
+            events_query = events_query.filter(types_event=event_type)
+
+        viewed_events_ids = EventView.objects.filter(
+            user_id=user_id,
+            is_viewed=True
+        )
+        if event_type:
+            viewed_events_ids = viewed_events_ids.filter(event__types_event=event_type)
+        viewed_events_ids = viewed_events_ids.values_list('event_id', flat=True)
+
+        unviewed_events = events_query.exclude(event_id__in=viewed_events_ids)
+        unviewed_count = unviewed_events.count()
+
+
         paginator = self.pagination_class()
         paginated_actions = paginator.paginate_queryset(user_actions_query, request)
 
@@ -630,7 +650,8 @@ class UserActionsAPIView(APIView):
 
         results = {
             "liked_events": liked_events,
-            "viewed_events": viewed_events
+            "viewed_events": viewed_events,
+            "unviewed_count": unviewed_count
         }
 
         return paginator.get_paginated_response(results)
