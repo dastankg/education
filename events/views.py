@@ -536,6 +536,7 @@ class EventListView(generics.ListAPIView):
 
 @extend_schema(
     tags=["User"],
+    summary="Список активности пользователя",
     parameters=[
         OpenApiParameter(
             name="user_id",
