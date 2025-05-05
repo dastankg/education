@@ -15,7 +15,6 @@ DEBUG = True
 ALLOWED_HOSTS = ["109.73.194.192", "127.0.0.1", "localhost", "google.com"]
 
 
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -143,7 +142,6 @@ AWS_S3_SIGNATURE_VERSION = "s3"
 AWS_S3_ADDRESSING_STYLE = "virtual"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 
 AUTH_USER_MODEL = "users.User"

@@ -19,6 +19,7 @@ class CustomRegisterSerializer(RegisterSerializer):
     full_name = serializers.CharField(required=False)
     age = serializers.IntegerField(required=False)
     type = serializers.CharField(required=False, max_length=50)
+
     def validate_email(self, email):
         email = super().validate_email(email)
         if User.objects.filter(email=email).exists():
@@ -39,11 +40,12 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def save(self, request):
         user = super().save(request)
-        user.full_name = self.cleaned_data.get('full_name', '')
-        user.age = self.cleaned_data.get('age')
-        user.type = self.cleaned_data.get('type', '')
+        user.full_name = self.cleaned_data.get("full_name", "")
+        user.age = self.cleaned_data.get("age")
+        user.type = self.cleaned_data.get("type", "")
         user.save()
         return user
+
 
 class CustomLoginSerializer(LoginSerializer):
     username = None

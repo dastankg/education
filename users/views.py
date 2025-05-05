@@ -4,7 +4,6 @@ from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from allauth.account.views import ConfirmEmailView
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
@@ -121,7 +120,6 @@ class PasswordResetRequestView(APIView):
             )
 
 
-
 @extend_schema(
     auth=None,
     tags=["auth"],
@@ -130,12 +128,12 @@ class PasswordResetRequestView(APIView):
     request=PasswordResetConfirmSerializer,
     examples=[
         OpenApiExample(
-            'Example request',
+            "Example request",
             value={
                 "password": "string123",
                 "password2": "string123",
                 "email": "test@gmail.com",
-                "code": "81FA41"
+                "code": "81FA41",
             },
             request_only=True,
         ),

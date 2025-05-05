@@ -325,7 +325,7 @@ class UnviewedEventsAPIView(generics.ListAPIView):
     tags=["Events"],
     summary="Фиксация перехода по ссылке события",
     description="Этот эндпоинт устанавливает флаг `is_linked=True` для связки пользователь-событие, "
-                "что означает, что пользователь действительно перешёл по ссылке (`type_url`).",
+    "что означает, что пользователь действительно перешёл по ссылке (`type_url`).",
     parameters=[
         OpenApiParameter(
             name="event_id",
@@ -506,8 +506,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
     ],
     responses={
         200: OpenApiResponse(
-            description="Список событий",
-            response=EventSerializer(many=True)
+            description="Список событий", response=EventSerializer(many=True)
         ),
     },
 )
@@ -515,7 +514,7 @@ class EventListView(generics.ListAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
-    @method_decorator(cache_page(300))
+    @method_decorator(cache_page(180))
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
@@ -573,8 +572,14 @@ class EventListView(generics.ListAPIView):
             "type": "object",
             "properties": {
                 "count": {"type": "integer", "description": "Общее количество записей"},
-                "next": {"type": ["string", "null"], "description": "URL следующей страницы"},
-                "previous": {"type": ["string", "null"], "description": "URL предыдущей страницы"},
+                "next": {
+                    "type": ["string", "null"],
+                    "description": "URL следующей страницы",
+                },
+                "previous": {
+                    "type": ["string", "null"],
+                    "description": "URL предыдущей страницы",
+                },
                 "results": {
                     "type": "object",
                     "properties": {
@@ -592,8 +597,8 @@ class EventListView(generics.ListAPIView):
                             "type": "integer",
                             "description": "Количество непросмотренных событий.",
                         },
-                    }
-                }
+                    },
+                },
             },
         },
         400: {"description": "Bad Request (Parameter user_id is required)"},
@@ -616,25 +621,23 @@ class UserActionsAPIView(APIView):
         user_actions_query = EventView.objects.filter(user_id=user_id)
 
         if event_type:
-            user_actions_query = user_actions_query.filter(event__types_event=event_type)
+            user_actions_query = user_actions_query.filter(
+                event__types_event=event_type
+            )
 
-        user_actions_query = user_actions_query.order_by('-created_at')
+        user_actions_query = user_actions_query.order_by("-created_at")
 
         events_query = Event.objects.all()
         if event_type:
             events_query = events_query.filter(types_event=event_type)
 
-        viewed_events_ids = EventView.objects.filter(
-            user_id=user_id,
-            is_viewed=True
-        )
+        viewed_events_ids = EventView.objects.filter(user_id=user_id, is_viewed=True)
         if event_type:
             viewed_events_ids = viewed_events_ids.filter(event__types_event=event_type)
-        viewed_events_ids = viewed_events_ids.values_list('event_id', flat=True)
+        viewed_events_ids = viewed_events_ids.values_list("event_id", flat=True)
 
         unviewed_events = events_query.exclude(event_id__in=viewed_events_ids)
         unviewed_count = unviewed_events.count()
-
 
         paginator = self.pagination_class()
         paginated_actions = paginator.paginate_queryset(user_actions_query, request)
@@ -652,7 +655,7 @@ class UserActionsAPIView(APIView):
         results = {
             "liked_events": liked_events,
             "viewed_events": viewed_events,
-            "unviewed_count": unviewed_count
+            "unviewed_count": unviewed_count,
         }
 
         return paginator.get_paginated_response(results)

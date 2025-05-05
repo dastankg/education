@@ -48,7 +48,6 @@ urlpatterns = [
         PasswordResetConfirmView.as_view(),
         name="reset_password_confirm",
     ),
-
     re_path(
         r"auth/registration/account-confirm-email/(?P<key>[-:\w]+)/$",
         CustomConfirmEmailView.as_view(),
@@ -83,15 +82,19 @@ urlpatterns = [
     ),
     # Events
     path("api/v1/events/", EventListView.as_view(), name="events-list"),
-
     path(
         "api/v1/events/unviewed/",
         UnviewedEventsAPIView.as_view(),
         name="events-unviewed",
     ),
-    path('api/v1/events/track/<uuid:event_id>/', EventLinkTrackView.as_view(), name='event-link-track'),
-
-    path('api/v1/events/<uuid:event_id>/', EventDetailAPIView.as_view(), name='event-detail'),
-
-
+    path(
+        "api/v1/events/track/<uuid:event_id>/",
+        EventLinkTrackView.as_view(),
+        name="event-link-track",
+    ),
+    path(
+        "api/v1/events/<uuid:event_id>/",
+        EventDetailAPIView.as_view(),
+        name="event-detail",
+    ),
 ]
