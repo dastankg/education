@@ -32,7 +32,7 @@ REST API проект на Django для управления образоват
 ### 1. Клонирование репозитория
 
 ```bash
-    git clone https://github.com/your-name/events-api.git
+    git clone https://github.com/dastankg/education.git
     cd events-api
 ```
 ### 2. Настройка переменных окружения
