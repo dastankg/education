@@ -58,7 +58,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
             return Event.objects.none()
 
         return Event.objects.filter(views__user=user, views__is_liked=True).order_by(
-            "-created_at"
+            "-views__created_at"
         )
 
     def list(self, request, *args, **kwargs):
