@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
@@ -58,7 +60,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
             return Event.objects.none()
 
         return Event.objects.filter(views__user=user, views__is_liked=True).order_by(
-            "-views__created_at"
+            "-views__liked_at"
         )
 
     def list(self, request, *args, **kwargs):
@@ -148,7 +150,7 @@ class AddFavoriteEventAPIView(APIView):
                 )
 
             EventView.objects.update_or_create(
-                user=user, event=event, defaults={"is_liked": True}
+                user=user, event=event, defaults={"is_liked": True, "liked_at": timezone.now()}
             )
 
             return Response(
