@@ -30,15 +30,7 @@ User = get_user_model()
     tags=["User"],
     summary="Получение списка избранных Event",
     description="Этот эндпоинт возвращает список всех избранных Event пользователя.",
-    parameters=[
-        OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=str,
-            location=OpenApiParameter.QUERY,
-        ),
-    ],
+    parameters=[],
     responses={
         200: {"description": "Список избранных Event"},
         404: {"description": "Пользователь не найден"},
@@ -49,10 +41,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user_id = self.request.query_params.get("user_id")
-
-        if not user_id:
-            return Event.objects.none()
+        user_id = self.request.user.id
 
         try:
             user = User.objects.get(id=user_id, is_active=True)
@@ -65,13 +54,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         try:
-            user_id = request.query_params.get("user_id")
-
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            user_id = request.user.id
 
             try:
                 User.objects.get(id=user_id, is_active=True)
@@ -94,13 +77,6 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
     description="Этот эндпоинт позволяет пользователю добавить Event в список избранного.",
     parameters=[
         OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=str,
-            location=OpenApiParameter.QUERY,
-        ),
-        OpenApiParameter(
             name="event_id",
             description="ID события, которое нужно добавить в избранное",
             required=True,
@@ -119,14 +95,8 @@ class AddFavoriteEventAPIView(APIView):
 
     def post(self, request):
         try:
-            user_id = request.query_params.get("user_id")
+            user_id = request.user.id
             event_id = request.query_params.get("event_id")
-
-            if not user_id or not event_id:
-                return Response(
-                    {"error": "Необходимо указать user_id и event_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
 
             try:
                 user = User.objects.get(id=user_id, is_active=True)
@@ -150,7 +120,9 @@ class AddFavoriteEventAPIView(APIView):
                 )
 
             EventView.objects.update_or_create(
-                user=user, event=event, defaults={"is_liked": True, "liked_at": timezone.now()}
+                user=user,
+                event=event,
+                defaults={"is_liked": True, "liked_at": timezone.now()},
             )
 
             return Response(
@@ -168,13 +140,6 @@ class AddFavoriteEventAPIView(APIView):
     summary="Удаление Event из избранного",
     description="Этот эндпоинт позволяет пользователю удалить Event из списка избранного.",
     parameters=[
-        OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=str,
-            location=OpenApiParameter.QUERY,
-        ),
         OpenApiParameter(
             name="event_id",
             description="ID события, которое нужно удалить из избранного",
@@ -194,14 +159,8 @@ class RemoveFavoriteEventAPIView(APIView):
 
     def delete(self, request):
         try:
-            user_id = request.query_params.get("user_id")
+            user_id = request.user.id
             event_id = request.query_params.get("event_id")
-
-            if not user_id or not event_id:
-                return Response(
-                    {"error": "Необходимо указать user_id и event_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
 
             try:
                 user = User.objects.get(id=user_id, is_active=True)
@@ -250,25 +209,10 @@ class RemoveFavoriteEventAPIView(APIView):
     tags=["User"],
     summary="Список непросмотренных событий",
     description="Возвращает события, которые пользователь ещё не просмотрел.",
-    parameters=[
-        OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=int,
-            location=OpenApiParameter.QUERY,
-        ),
-    ],
     responses={
         200: OpenApiResponse(
             description="Список непросмотренных событий",
             response=EventsUnviewedSerializer(many=True),
-        ),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample("Ошибка", value={"error": "Необходимо указать user_id"})
-            ],
         ),
         404: OpenApiResponse(
             description="Пользователь не найден",
@@ -283,10 +227,7 @@ class UnviewedEventsAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user_id = self.request.query_params.get("user_id")
-
-        if not user_id:
-            return Event.objects.none()
+        user_id = self.request.user.id
 
         try:
             user = User.objects.get(id=user_id, is_active=True)
@@ -300,13 +241,7 @@ class UnviewedEventsAPIView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         try:
-            user_id = request.query_params.get("user_id")
-
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            user_id = request.user.id
 
             try:
                 User.objects.get(id=int(user_id), is_active=True)
@@ -336,13 +271,6 @@ class UnviewedEventsAPIView(generics.ListAPIView):
             type={"type": "string", "format": "uuid"},
             location=OpenApiParameter.PATH,
         ),
-        OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=str,
-            location=OpenApiParameter.QUERY,
-        ),
     ],
     responses={
         200: OpenApiResponse(
@@ -370,13 +298,7 @@ class EventLinkTrackView(APIView):
 
     def post(self, request, event_id):
         try:
-            user_id = request.query_params.get("user_id")
-
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            user_id = request.user.id
 
             try:
                 user = User.objects.get(id=user_id, is_active=True)
@@ -413,15 +335,6 @@ class EventLinkTrackView(APIView):
     tags=["Events"],
     summary="Получение детальной информации о Event",
     description="Этот эндпоинт возвращает подробную информацию о конкретном Event по его ID. Передайте `user_id` как query параметр, чтобы зафиксировать просмотр.",
-    parameters=[
-        OpenApiParameter(
-            name="user_id",
-            description="UUID пользователя для фиксации просмотра и определения is_like/is_viewed",
-            required=False,
-            type=int,
-            location=OpenApiParameter.QUERY,
-        ),
-    ],
     responses={200: EventSerializer, 404: {"description": "Event не найден"}},
     examples=[
         OpenApiExample(
@@ -449,7 +362,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            user_id = request.query_params.get("user_id")
+            user_id = request.user.id
             event = self.get_object()
             event.click += 1
             event.save()
@@ -540,13 +453,6 @@ class EventListView(generics.ListAPIView):
     summary="Список активности пользователя",
     parameters=[
         OpenApiParameter(
-            name="user_id",
-            description="UUID пользователя, для которого запрашиваются действия.",
-            required=True,
-            type=str,
-            location=OpenApiParameter.QUERY,
-        ),
-        OpenApiParameter(
             name="event_type",
             description="Тип события для фильтрации (опционально): grant, internship, event, olympiad, course.",
             required=False,
@@ -603,7 +509,6 @@ class EventListView(generics.ListAPIView):
                 },
             },
         },
-        400: {"description": "Bad Request (Parameter user_id is required)"},
     },
 )
 class UserActionsAPIView(APIView):
@@ -611,14 +516,8 @@ class UserActionsAPIView(APIView):
     pagination_class = LimitOffsetPagination
 
     def get(self, request):
-        user_id = request.query_params.get("user_id")
+        user_id = request.user.id
         event_type = request.query_params.get("event_type")
-
-        if not user_id:
-            return Response(
-                {"detail": "Параметр user_id обязателен"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         user_actions_query = EventView.objects.filter(user_id=user_id)
 

@@ -8,7 +8,6 @@ from drf_spectacular.utils import (
     extend_schema,
     OpenApiResponse,
     OpenApiExample,
-    OpenApiParameter,
 )
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -221,15 +220,6 @@ class PasswordResetConfirmView(APIView):
     tags=["User"],
     summary="Обновление токена устройства",
     description="Этот эндпоинт позволяет обновить FCM токен устройства пользователя для получения push-уведомлений.",
-    parameters=[
-        OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=int,
-            location=OpenApiParameter.QUERY,
-        ),
-    ],
     request={
         "application/json": {
             "type": "object",
@@ -277,21 +267,14 @@ class UpdateDeviceTokenView(APIView):
 
     def post(self, request):
         try:
-            user_id = request.query_params.get("user_id")
             device_token = request.data.get("device_token")
-
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
 
             if not device_token:
                 return Response(
                     {"error": "Необходимо указать device_token"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
+            user_id = request.user.id
             try:
                 user = User.objects.get(id=user_id, is_active=True)
             except User.DoesNotExist:

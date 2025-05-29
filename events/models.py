@@ -16,11 +16,11 @@ def get_image_path(instance, filename):
 
 class Event(models.Model):
     TYPE_CHOICES = [
-        ("grant", "Grant"),
-        ("internship", "Internship"),
-        ("event", "Event"),
-        ("olympiad", "Olympiad"),
-        ("course", "Course"),
+        ("grant", "Грант"),
+        ("internship", "Стажировка"),
+        ("event", "Мероприятие"),
+        ("olympiad", "Олимпиада"),
+        ("course", "Курс"),
     ]
 
     event_id = models.UUIDField(

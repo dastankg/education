@@ -34,10 +34,11 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     TYPE_CHOICES = [
-        ("школьник(ца)", "Школьник(ца)"),
-        ("студент(ка)", "Студент(ка)"),
-        ("другое", "Другое"),
+        ("school", "Школьник(ца)"),
+        ("student", "Студент(ка)"),
+        ("other", "Другое"),
     ]
+
     age = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(120)], blank=True, null=True
     )
