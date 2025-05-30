@@ -25,8 +25,6 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "events.apps.EventsConfig",
     "users.apps.UsersConfig",
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
     "rest_framework",
     "rest_framework.authtoken",
     "allauth",
@@ -151,22 +149,12 @@ AUTH_USER_MODEL = "users.User"
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 8,
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
 }
 
-SPECTACULAR_SETTINGS = {
-    "TITLE": "API",
-    "DESCRIPTION": "RetMind Test assignment",
-    "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-    "SERVE_AUTHENTICATION": None,
-    "SWAGGER_UI_DIST": "SIDECAR",
-    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
-    "REDOC_DIST": "SIDECAR",
-}
+
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.getenv("SMTP_HOST")
