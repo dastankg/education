@@ -1,4 +1,3 @@
-from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from events.models import Event, EventView
@@ -19,17 +18,17 @@ class EventsLikesSerializer(serializers.ModelSerializer):
             "is_like",
         ]
 
-    @extend_schema_field(serializers.BooleanField())
-    def get_is_like(self, obj):
-        request = self.context.get("request")
-        user_id = request.query_params.get("user_id") if request else None
+    # @extend_schema_field(serializers.BooleanField())
+    # def get_is_like(self, obj):
+    #     request = self.context.get("request")
+    #     user_id = request.query_params.get("user_id") if request else None
 
-        if not user_id:
-            return False
+    #     if not user_id:
+    #         return False
 
-        return EventView.objects.filter(
-            user__id=user_id, event=obj, is_liked=True
-        ).exists()
+    #     return EventView.objects.filter(
+    #         user__id=user_id, event=obj, is_liked=True
+    #     ).exists()
 
 
 class EventsUnviewedSerializer(serializers.ModelSerializer):
@@ -47,17 +46,17 @@ class EventsUnviewedSerializer(serializers.ModelSerializer):
             "is_viewed",
         ]
 
-    @extend_schema_field(serializers.BooleanField())
-    def get_is_viewed(self, obj):
-        request = self.context.get("request")
-        user_id = request.query_params.get("user_id") if request else None
+    # @extend_schema_field(serializers.BooleanField())
+    # def get_is_viewed(self, obj):
+    #     request = self.context.get("request")
+    #     user_id = request.query_params.get("user_id") if request else None
 
-        if not user_id:
-            return False
+    #     if not user_id:
+    #         return False
 
-        return EventView.objects.filter(
-            user__id=user_id, event=obj, is_viewed=True
-        ).exists()
+    #     return EventView.objects.filter(
+    #         user__id=user_id, event=obj, is_viewed=True
+    #     ).exists()
 
 
 class EventSerializer(serializers.ModelSerializer):

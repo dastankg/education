@@ -4,12 +4,6 @@ from allauth.account.models import EmailConfirmation, EmailConfirmationHMAC
 from allauth.account.views import ConfirmEmailView
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from drf_spectacular.utils import (
-    extend_schema,
-    OpenApiResponse,
-    OpenApiExample,
-    OpenApiParameter,
-)
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -57,34 +51,6 @@ class CustomConfirmEmailView(ConfirmEmailView):
 class VerificationSuccessView(TemplateView):
     template_name = "verification_success.html"
 
-
-@extend_schema(
-    auth=None,
-    tags=["auth"],
-    summary="Запрос на сброс пароля",
-    description="Этот эндпоинт отправляет письмо с кодом для сброса пароля на указанный email.",
-    request=PasswordResetRequestSerializer,
-    responses={
-        200: OpenApiResponse(
-            description="Письмо для сброса пароля отправлено",
-            examples=[
-                OpenApiExample(
-                    "Успешный ответ",
-                    value={"message": "Код для сброса пароля отправлен на ваш email."},
-                )
-            ],
-        ),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample(
-                    "Email не найден",
-                    value={"error": "Пользователь с указанным email не найден."},
-                ),
-            ],
-        ),
-    },
-)
 class PasswordResetRequestView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetRequestSerializer
@@ -119,55 +85,6 @@ class PasswordResetRequestView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-
-@extend_schema(
-    auth=None,
-    tags=["auth"],
-    summary="Подтверждение сброса пароля",
-    description="Этот эндпоинт устанавливает новый пароль после проверки кода сброса.",
-    request=PasswordResetConfirmSerializer,
-    examples=[
-        OpenApiExample(
-            "Example request",
-            value={
-                "password": "string123",
-                "password2": "string123",
-                "email": "test@gmail.com",
-                "code": "81FA41",
-            },
-            request_only=True,
-        ),
-    ],
-    responses={
-        200: OpenApiResponse(
-            description="Пароль успешно изменен",
-            examples=[
-                OpenApiExample(
-                    "Успешный ответ",
-                    value={"message": "Пароль успешно изменен."},
-                )
-            ],
-        ),
-        400: OpenApiResponse(
-            description="Ошибка запроса",
-            examples=[
-                OpenApiExample(
-                    "Ошибка валидации",
-                    value={
-                        "password": ["Пароль должен содержать не менее 8 символов."],
-                        "password2": ["Пароли не совпадают."],
-                        "code": ["Неверный код подтверждения."],
-                        "email": ["Этот email не найден."],
-                    },
-                ),
-                OpenApiExample(
-                    "Недействительный код",
-                    value={"error": "Недействительный код сброса пароля."},
-                ),
-            ],
-        ),
-    },
-)
 class PasswordResetConfirmView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetConfirmSerializer
@@ -215,63 +132,6 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-
-@extend_schema(
-    auth=None,
-    tags=["User"],
-    summary="Обновление токена устройства",
-    description="Этот эндпоинт позволяет обновить FCM токен устройства пользователя для получения push-уведомлений.",
-    parameters=[
-        OpenApiParameter(
-            name="user_id",
-            description="ID пользователя",
-            required=True,
-            type=int,
-            location=OpenApiParameter.QUERY,
-        ),
-    ],
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "device_token": {
-                    "type": "string",
-                    "description": "FCM токен устройства",
-                }
-            },
-            "required": ["device_token"],
-        }
-    },
-    responses={
-        200: OpenApiResponse(
-            description="Токен устройства успешно обновлен",
-            examples=[
-                OpenApiExample(
-                    "Успешный ответ",
-                    value={"success": "Токен устройства успешно обновлен"},
-                ),
-            ],
-        ),
-        400: OpenApiResponse(
-            description="Неверные данные запроса",
-            examples=[
-                OpenApiExample(
-                    "Ошибка запроса",
-                    value={"error": "Необходимо указать device_token"},
-                ),
-            ],
-        ),
-        404: OpenApiResponse(
-            description="Пользователь не найден",
-            examples=[
-                OpenApiExample(
-                    "Ошибка поиска пользователя",
-                    value={"error": "Пользователь не найден"},
-                ),
-            ],
-        ),
-    },
-)
 class UpdateDeviceTokenView(APIView):
     permission_classes = [IsAuthenticated]
 

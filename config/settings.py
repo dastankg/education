@@ -1,10 +1,10 @@
 from pathlib import Path
 import os
-
 from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -12,7 +12,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = ['meldesh.kg', '109.73.194.192', 'localhost', '127.0.0.1']
 
 
 INSTALLED_APPS = [
@@ -25,8 +25,6 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "events.apps.EventsConfig",
     "users.apps.UsersConfig",
-    "drf_spectacular",
-    "drf_spectacular_sidecar",
     "rest_framework",
     "rest_framework.authtoken",
     "allauth",
@@ -112,9 +110,6 @@ USE_TZ = True
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
 
 AWS_S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL")
 AWS_STORAGE_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
@@ -145,7 +140,6 @@ AWS_S3_ADDRESSING_STYLE = "virtual"
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
@@ -157,20 +151,9 @@ REST_FRAMEWORK = {
     ),
 }
 
-SPECTACULAR_SETTINGS = {
-    "TITLE": "API",
-    "DESCRIPTION": "RetMind Test assignment",
-    "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-    "SERVE_AUTHENTICATION": None,
-    "SWAGGER_UI_DIST": "SIDECAR",
-    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
-    "REDOC_DIST": "SIDECAR",
-}
-
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = os.getenv("SMTP_HOST")
-EMAIL_PORT = os.getenv("SMTP_PORT")
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("SMTP_EMAIL")
 EMAIL_HOST_PASSWORD = os.getenv("SMTP_PASSWORD")

@@ -16,23 +16,10 @@ from users.views import (
     PasswordResetRequestView,
     UpdateDeviceTokenView,
 )
-from drf_spectacular.views import (
-    SpectacularAPIView,
-    SpectacularRedocView,
-    SpectacularSwaggerView,
-)
 
 from users.views import VerificationSuccessView, CustomConfirmEmailView
 
 urlpatterns = [
-    # API Documentation
-    path("schema/", SpectacularAPIView.as_view(), name="api-schema"),
-    path(
-        "docs/",
-        SpectacularSwaggerView.as_view(url_name="api-schema"),
-        name="swagger-ui",
-    ),
-    path("redoc/", SpectacularRedocView.as_view(url_name="api-schema"), name="redoc"),
     # Admin Site
     path("admin/", admin.site.urls),
     # Authentication URLs

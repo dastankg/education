@@ -11,3 +11,9 @@ wheels/
 .idea
 .env
 db.sqlite3
+
+/venv
+
+firebase-credentials.json
+
+/staticfiles
