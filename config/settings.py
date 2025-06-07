@@ -2,6 +2,14 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://bf933a02b3853f6181a05b2ff6df95d5@o4507503966158848.ingest.de.sentry.io/4509457639669840",
+    # Add data like request headers and IP for users,
+    # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
+    send_default_pii=True,
+)
 
 load_dotenv()
 
