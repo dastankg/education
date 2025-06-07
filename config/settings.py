@@ -150,11 +150,7 @@ AUTH_USER_MODEL = "users.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "PAGE_SIZE": 8,
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
-    ),
+    "PAGE_SIZE": 8
 }
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -195,6 +191,7 @@ FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "firebase-credentials.json")
 
 
 CORS_ALLOWED_ORIGINS = [
+    "https://localhost",
     "http://localhost:3000",
     "http://localhost:8100",
 ]
