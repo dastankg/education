@@ -187,6 +187,7 @@ class EventDetailAPIView(generics.RetrieveAPIView):
         return Response(serializer.data)
 
 class EventListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Event.objects.all()
     serializer_class = EventSerializer
 
@@ -203,6 +204,11 @@ class EventListView(generics.ListAPIView):
 
         ordering = self.request.query_params.get("ordering", "-created_at")
         return queryset.order_by(ordering)
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
 
 class UserActionsAPIView(APIView):

@@ -36,6 +36,8 @@ class EventsUnviewedSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    event_view = serializers.SerializerMethodField()
+
     class Meta:
         model = Event
         fields = [
@@ -49,4 +51,23 @@ class EventSerializer(serializers.ModelSerializer):
             "company",
             "created_at",
             "updated_at",
+            "event_view",
         ]
+
+    def get_event_view(self, obj):
+        user = self.context.get("request").user
+        if user.is_anonymous:
+            return None
+
+        try:
+            event_view = obj.views.get(user=user)
+            return EventViewSerializer(event_view).data
+        except EventView.DoesNotExist:
+            return None
+
+
+class EventViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EventView
+        fields = ["is_viewed", "is_liked", "is_linked", "liked_at"]
+
