@@ -25,7 +25,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user_id = self.request.query_params.get("user_id")
+        user_id = self.request.user.id
 
         if not user_id:
             return Event.objects.none()
@@ -41,13 +41,7 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         try:
-            user_id = request.query_params.get("user_id")
-
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            user_id = request.user.id
 
             try:
                 User.objects.get(id=user_id, is_active=True)
@@ -69,7 +63,7 @@ class AddFavoriteEventAPIView(APIView):
 
     def post(self, request):
         try:
-            user_id = request.query_params.get("user_id")
+            user_id = request.user.id
             event_id = request.query_params.get("event_id")
 
             if not user_id or not event_id:
@@ -117,12 +111,12 @@ class RemoveFavoriteEventAPIView(APIView):
 
     def delete(self, request):
         try:
-            user_id = request.query_params.get("user_id")
+            user_id = request.user.id
             event_id = request.query_params.get("event_id")
 
-            if not user_id or not event_id:
+            if not event_id:
                 return Response(
-                    {"error": "Необходимо указать user_id и event_id"},
+                    {"error": "Необходимо указать event_id"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -172,10 +166,7 @@ class UnviewedEventsAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user_id = self.request.query_params.get("user_id")
-
-        if not user_id:
-            return Event.objects.none()
+        user_id = self.request.user.id
 
         try:
             user = User.objects.get(id=user_id, is_active=True)
@@ -216,13 +207,7 @@ class EventLinkTrackView(APIView):
 
     def post(self, request, event_id):
         try:
-            user_id = request.query_params.get("user_id")
-
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            user_id = request.user.id
 
             try:
                 user = User.objects.get(id=user_id, is_active=True)
@@ -262,23 +247,19 @@ class EventDetailAPIView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            user_id = request.query_params.get("user_id")
+            user_id = request.user.id
             event = self.get_object()
             event.click += 1
             event.save()
-            if user_id:
-                try:
-                    user = User.objects.get(id=user_id)
+            user = User.objects.get(id=user_id)
 
-                    try:
-                        event_view = EventView.objects.get(user=user, event=event)
-                        event_view.is_viewed = True
-                        event_view.save()
-                    except EventView.DoesNotExist:
-                        EventView.objects.create(user=user, event=event, is_viewed=True)
+            try:
+                event_view = EventView.objects.get(user=user, event=event)
+                event_view.is_viewed = True
+                event_view.save()
+            except EventView.DoesNotExist:
+                EventView.objects.create(user=user, event=event, is_viewed=True)
 
-                except User.DoesNotExist:
-                    pass
 
             serializer = self.get_serializer(
                 event, context={"request": request, "user_id": user_id}
@@ -317,14 +298,8 @@ class UserActionsAPIView(APIView):
     pagination_class = LimitOffsetPagination
 
     def get(self, request):
-        user_id = request.query_params.get("user_id")
+        user_id = request.user.id
         event_type = request.query_params.get("event_type")
-
-        if not user_id:
-            return Response(
-                {"detail": "Параметр user_id обязателен"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         user_actions_query = EventView.objects.filter(user_id=user_id)
 
