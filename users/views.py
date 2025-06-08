@@ -6,7 +6,8 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
+from .permissions import IsAuthenticated
 
 from users.models import PasswordReset
 from users.serializers import (
@@ -51,6 +52,7 @@ class CustomConfirmEmailView(ConfirmEmailView):
 class VerificationSuccessView(TemplateView):
     template_name = "verification_success.html"
 
+
 class PasswordResetRequestView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetRequestSerializer
@@ -64,7 +66,8 @@ class PasswordResetRequestView(APIView):
             user = User.objects.get(email=email)
 
             try:
-                password_reset = PasswordReset.objects.get(user=user, used=False)
+                password_reset = PasswordReset.objects.get(
+                    user=user, used=False)
                 password_reset.reset_token = uuid.uuid4().hex[:6].upper()
                 password_reset.save()
             except PasswordReset.DoesNotExist:
@@ -84,6 +87,7 @@ class PasswordResetRequestView(APIView):
                 {"error": "Пользователь с указанным email не найден."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
 
 class PasswordResetConfirmView(APIView):
     permission_classes = (AllowAny,)
@@ -132,43 +136,24 @@ class PasswordResetConfirmView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+
 class UpdateDeviceTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        try:
-            user_id = request.query_params.get("user_id")
-            device_token = request.data.get("device_token")
+        user = request.user.id
+        device_token = request.data.get("device_token")
 
-            if not user_id:
-                return Response(
-                    {"error": "Необходимо указать user_id"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            if not device_token:
-                return Response(
-                    {"error": "Необходимо указать device_token"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            try:
-                user = User.objects.get(id=user_id, is_active=True)
-            except User.DoesNotExist:
-                return Response(
-                    {"error": "Пользователь не найден"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-
-            user.device_token = device_token
-            user.save(update_fields=["device_token"])
-
+        if not device_token:
             return Response(
-                {"success": "Токен устройства успешно обновлен"},
-                status=status.HTTP_200_OK,
+                {"error": "Необходимо указать device_token"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        except Exception as e:
-            return Response(
-                {"error": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
+
+        user.device_token = device_token
+        user.save(update_fields=["device_token"])
+
+        return Response(
+            {"success": "Токен устройства успешно обновлен"},
+            status=status.HTTP_200_OK,
+        )
