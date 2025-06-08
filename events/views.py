@@ -14,7 +14,6 @@ from users.permissions import IsAuthenticated
 
 User = get_user_model()
 
-
 class ListFavoriteEventsAPIView(generics.ListAPIView):
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticated]
@@ -25,15 +24,11 @@ class ListFavoriteEventsAPIView(generics.ListAPIView):
         return Event.objects.filter(views__user=user, views__is_liked=True).order_by(
             "-views__liked_at"
         )
-
-    # def list(self, request, *args, **kwargs):
-    #     try:
-    #         return super().list(request, *args, **kwargs)
-    #     except Exception as e:
-    #         return Response(
-    #             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-    #         )
-
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
 class AddFavoriteEventAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -123,14 +118,11 @@ class UnviewedEventsAPIView(generics.ListAPIView):
             "event__event_id", flat=True
         )
         return Event.objects.exclude(event_id__in=viewed_events)
-
-    # def list(self, request, *args, **kwargs):
-    #     try:
-    #         return super().list(request, *args, **kwargs)
-    #     except Exception as e:
-    #         return Response(
-    #             {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
-    #         )
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
 class EventLinkTrackView(APIView):
     permission_classes = [IsAuthenticated]
