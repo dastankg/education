@@ -141,7 +141,7 @@ class UpdateDeviceTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        user = request.user.id
+        user = request.user
         device_token = request.data.get("device_token")
 
         if not device_token:
