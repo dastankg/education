@@ -1,16 +1,11 @@
 from django.utils import timezone
 
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
-
 from django.contrib.auth import get_user_model
 from rest_framework.pagination import LimitOffsetPagination
 
 from events.models import Event, EventView
 from rest_framework.response import Response
 from events.serializers import (
-    EventsLikesSerializer,
-    EventsUnviewedSerializer,
     EventSerializer,
 )
 from rest_framework import generics, status
