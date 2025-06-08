@@ -69,5 +69,5 @@ class EventSerializer(serializers.ModelSerializer):
 class EventViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventView
-        fields = ["is_viewed", "is_liked", "is_linked", "liked_at"]
+        fields = ["is_viewed", "is_liked"]
 
