@@ -21,7 +21,7 @@ User = get_user_model()
 
 
 class ListFavoriteEventsAPIView(generics.ListAPIView):
-    serializer_class = EventsLikesSerializer
+    serializer_class = EventSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -118,7 +118,7 @@ class RemoveFavoriteEventAPIView(APIView):
         )
         
 class UnviewedEventsAPIView(generics.ListAPIView):
-    serializer_class = EventsUnviewedSerializer
+    serializer_class = EventSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
