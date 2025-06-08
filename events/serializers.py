@@ -56,9 +56,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     def get_event_view(self, obj):
         user = self.context.get("request").user
-        if user.is_anonymous:
-            return None
-
+        
         try:
             event_view = obj.views.get(user=user)
             return EventViewSerializer(event_view).data
