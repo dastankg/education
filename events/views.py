@@ -35,7 +35,7 @@ class AddFavoriteEventAPIView(APIView):
 
         if not event_id:
             return Response(
-                {"error": "Необходимо указать user_id и event_id"},
+                {"error": "Необходимо указать event_id"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
