@@ -26,12 +26,12 @@ urlpatterns = [
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
     path(
-        "api/v2/auth/password/reset/",
+        "api/v1/auth/password/reset/",
         PasswordResetRequestView.as_view(),
         name="reset_password_request",
     ),
     path(
-        "api/v2/auth/password/reset/confirm/",
+        "api/v1/auth/password/reset/confirm/",
         PasswordResetConfirmView.as_view(),
         name="reset_password_confirm",
     ),
