@@ -166,10 +166,9 @@ DEFAULT_FROM_EMAIL = os.getenv("SMTP_EMAIL")
 EMAIL_HOST_USER = os.getenv("SMTP_EMAIL")
 EMAIL_HOST_PASSWORD = os.getenv("SMTP_PASSWORD")
 
-
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=20),
-    "REFRESH_TOKEN_LIFETIME": timedelta(weeks=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=10),
 }
 
 REST_AUTH = {
@@ -191,9 +190,7 @@ ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = "/auth/verification-success/"
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/auth/verification-success/"
 
-
 FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "firebase-credentials.json")
-
 
 CORS_ALLOWED_ORIGINS = [
     "https://localhost",
