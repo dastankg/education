@@ -8,7 +8,7 @@ from events.views import (
     UnviewedEventsAPIView,
     EventLinkTrackView,
     EventDetailAPIView,
-    UserActionsAPIView,
+    UnviewedEventsCountAPIView,
     EventListView,
 )
 from users.views import (
@@ -45,10 +45,6 @@ urlpatterns = [
         VerificationSuccessView.as_view(),
         name="auth-verification-success",
     ),
-    # User Actions
-    path(
-        "api/v1/user-actions/", UserActionsAPIView.as_view(), name="user-actions-list"
-    ),
     path(
         "api/v1/devices/token/",
         UpdateDeviceTokenView.as_view(),
@@ -79,6 +75,7 @@ urlpatterns = [
         EventLinkTrackView.as_view(),
         name="event-link-track",
     ),
+    path("api/events/unviewed_count/", UnviewedEventsCountAPIView.as_view()),
     path(
         "api/v1/events/<uuid:event_id>/",
         EventDetailAPIView.as_view(),

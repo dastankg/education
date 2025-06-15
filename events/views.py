@@ -192,54 +192,24 @@ class EventListView(generics.ListAPIView):
         context = super().get_serializer_context()
         context["request"] = self.request
         return context
-
-
-class UserActionsAPIView(APIView):
+    
+class UnviewedEventsCountAPIView(APIView):
     permission_classes = [IsAuthenticated]
-    pagination_class = LimitOffsetPagination
 
     def get(self, request):
         user = request.user
-        event_type = request.query_params.get("event_type")
 
-        user_actions_query = EventView.objects.filter(user=user)
+        types = [choice[0] for choice in Event.TYPE_CHOICES]
 
-        if event_type:
-            user_actions_query = user_actions_query.filter(
-                event__types_event=event_type
-            )
+        counts = {}
 
-        user_actions_query = user_actions_query.order_by("-created_at")
+        for t in types:
+            events_of_type = Event.objects.filter(types_event=t)
 
-        events_query = Event.objects.all()
-        if event_type:
-            events_query = events_query.filter(types_event=event_type)
+            viewed_for_type = EventView.objects.filter(user=user, event__types_event=t, is_viewed=True).values_list("event_id", flat=True)
 
-        viewed_events_ids = EventView.objects.filter(user=user, is_viewed=True)
-        if event_type:
-            viewed_events_ids = viewed_events_ids.filter(event__types_event=event_type)
-        viewed_events_ids = viewed_events_ids.values_list("event_id", flat=True)
+            unviewed_count = events_of_type.exclude(event_id__in=viewed_for_type).count()
 
-        unviewed_events = events_query.exclude(event_id__in=viewed_events_ids)
-        unviewed_count = unviewed_events.count()
+            counts[t] = unviewed_count
 
-        paginator = self.pagination_class()
-        paginated_actions = paginator.paginate_queryset(user_actions_query, request)
-
-        liked_events = []
-        viewed_events = []
-
-        for action in paginated_actions:
-            event_uuid = str(action.event.event_id)
-            if action.is_liked:
-                liked_events.append(event_uuid)
-            if action.is_viewed:
-                viewed_events.append(event_uuid)
-
-        results = {
-            "liked_events": liked_events,
-            "viewed_events": viewed_events,
-            "unviewed_count": unviewed_count,
-        }
-
-        return paginator.get_paginated_response(results)
+        return Response(counts)
