@@ -75,7 +75,7 @@ urlpatterns = [
         EventLinkTrackView.as_view(),
         name="event-link-track",
     ),
-    path("api/events/unviewed_count/", UnviewedEventsCountAPIView.as_view()),
+    path("api/v1/events/unviewed_count/", UnviewedEventsCountAPIView.as_view()),
     path(
         "api/v1/events/<uuid:event_id>/",
         EventDetailAPIView.as_view(),
