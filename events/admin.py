@@ -63,37 +63,37 @@ class EventAdmin(admin.ModelAdmin):
             views_total=Count("views", filter=Q(views__is_viewed=True)),
             views_school=Count(
                 "views",
-                filter=Q(views__is_viewed=True, views__user__type="школьник(ца)"),
+                filter=Q(views__is_viewed=True, views__user__type="school"),
             ),
             views_student=Count(
                 "views",
-                filter=Q(views__is_viewed=True, views__user__type="студент(ка)"),
+                filter=Q(views__is_viewed=True, views__user__type="student"),
             ),
             views_other=Count(
-                "views", filter=Q(views__is_viewed=True, views__user__type="другое")
+                "views", filter=Q(views__is_viewed=True, views__user__type="other")
             ),
             total_likes=Count("views", filter=Q(views__is_liked=True)),
             likes_school=Count(
                 "views",
-                filter=Q(views__is_liked=True, views__user__type="школьник(ца)"),
+                filter=Q(views__is_liked=True, views__user__type="school"),
             ),
             likes_student=Count(
-                "views", filter=Q(views__is_liked=True, views__user__type="студент(ка)")
+                "views", filter=Q(views__is_liked=True, views__user__type="student")
             ),
             likes_other=Count(
-                "views", filter=Q(views__is_liked=True, views__user__type="другое")
+                "views", filter=Q(views__is_liked=True, views__user__type="other")
             ),
             links_total=Count("views", filter=Q(views__is_linked=True)),
             links_school=Count(
                 "views",
-                filter=Q(views__is_linked=True, views__user__type="школьник(ца)"),
+                filter=Q(views__is_linked=True, views__user__type="school"),
             ),
             links_student=Count(
                 "views",
-                filter=Q(views__is_linked=True, views__user__type="студент(ка)"),
+                filter=Q(views__is_linked=True, views__user__type="student"),
             ),
             links_other=Count(
-                "views", filter=Q(views__is_linked=True, views__user__type="другое")
+                "views", filter=Q(views__is_linked=True, views__user__type="other")
             ),
         )
 
