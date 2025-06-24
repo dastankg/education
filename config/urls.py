@@ -22,6 +22,7 @@ from users.views import VerificationSuccessView, CustomConfirmEmailView
 urlpatterns = [
     # Admin Site
     path("admin/", admin.site.urls),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
     # Authentication URLs
     path("api/v1/auth/", include("dj_rest_auth.urls")),
     path("api/v1/auth/registration/", include("dj_rest_auth.registration.urls")),
