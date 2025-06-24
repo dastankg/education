@@ -1,6 +1,5 @@
 from django.utils import timezone
 from django.contrib.auth import get_user_model
-from rest_framework.pagination import LimitOffsetPagination
 from events.models import Event, EventView
 from rest_framework.response import Response
 from events.serializers import EventSerializer

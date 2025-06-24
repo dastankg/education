@@ -4,6 +4,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import HashIndex
 from django.db import models
+from django_ckeditor_5.fields import CKEditor5Field
 
 User = get_user_model()
 
@@ -27,7 +28,7 @@ class Event(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False, db_index=True
     )
     title = models.CharField(max_length=200)
-    description = models.TextField()
+    description = CKEditor5Field(config_name='extends')
     image = models.ImageField(upload_to=get_image_path)
     deadline = models.DateField()
     types_event = models.CharField(max_length=100, choices=TYPE_CHOICES)
