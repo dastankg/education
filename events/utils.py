@@ -70,11 +70,7 @@ class FirebaseNotificationService:
 
     def send_event_notification(self, event, tokens=None):
         title = "Новое событие"
-        body = (
-            f"{event.title}: {event.description[:50]}..."
-            if len(event.description) > 50
-            else event.description
-        )
+        body = event.title
 
         data = {
             "event_id": str(event.event_id),
