@@ -193,12 +193,7 @@ ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/auth/verification-succ
 
 FIREBASE_CREDENTIALS_PATH = os.path.join(BASE_DIR, "firebase-credentials.json")
 
-CORS_ALLOWED_ORIGINS = [
-    "capacitor://localhost",
-    "https://localhost",
-    "http://localhost:3000",
-    "http://localhost:8100",
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_METHODS = (
     "DELETE",
