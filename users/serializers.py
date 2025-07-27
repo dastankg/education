@@ -1,7 +1,6 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from dj_rest_auth.serializers import LoginSerializer, UserDetailsSerializer
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.password_validation import validate_password
 from django.core.mail import send_mail
 
 from rest_framework import serializers
@@ -86,7 +85,7 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     code = serializers.CharField(required=True, min_length=6, max_length=6)
     password = serializers.CharField(
-        write_only=True, required=True, validators=[validate_password]
+        write_only=True, required=True
     )
     password2 = serializers.CharField(write_only=True, required=True)
 
